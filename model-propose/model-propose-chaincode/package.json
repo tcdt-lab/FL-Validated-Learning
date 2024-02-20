@@ -1,7 +1,7 @@
 {
-  "name": "coin-transfer-basic",
+  "name": "model-propose",
   "version": "1.0.0",
-  "description": "Coin-Transfer-Basic contract implemented in JavaScript",
+  "description": "The chaincode of the model channel responsible for adding the hash model of different clients",
   "main": "index.js",
   "engines": {
     "node": ">=12",
