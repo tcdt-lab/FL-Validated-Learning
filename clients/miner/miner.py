@@ -22,15 +22,16 @@ class TimerCallback(tf.keras.callbacks.Callback):
 
 
 class Miner:
-    def __init__(self, name):
+    def __init__(self, name, peer_port=3000):
         self.name = name
         self.max_trx = 2
         self.total_miners = 5
         self.test_size = 5
+        self.peer_port = peer_port
 
     def get_transactions(self):
         # Gets assigned transactions from the demo ledger
-        res = requests.post("http://localhost:3000/api/demo/transactions/assign/",
+        res = requests.post(f"http://localhost:3000/api/demo/transactions/assign/",
                             json={
                                 "minerName": self.name,
                                 "count": self.max_trx
@@ -40,10 +41,9 @@ class Miner:
         except:
             print("Not ready for assignment.")
             exit(1)
-        print(self.transactions)
 
     def get_test_records(self):
-        res = requests.get("http://localhost:3000/api/model/",
+        res = requests.get(f"http://localhost:{self.peer_port}/api/model/",
                             json={
                                 "id" : "testRecords"
                             })
@@ -76,7 +76,7 @@ class Miner:
         return np.expand_dims(imgs, -1)
 
     def get_predictions(self):
-        res = requests.get("http://localhost:3000/api/preds/miner",
+        res = requests.get(f"http://localhost:{self.peer_port}/api/preds/miner",
                             json={
                                 "id" : f"model_{self.name[-1]}"
                             })
@@ -107,7 +107,7 @@ class Miner:
         test_data = [data.tolist() for data in test_data]
         transaction_ids = [transaction["id"] for transaction in self.transactions]
         hash_value = hashlib.md5(open(self.current_model,'rb').read()).hexdigest()
-        requests.post("http://localhost:3000/api/model/", json={
+        requests.post(f"http://localhost:{self.peer_port}/api/model/", json={
             "id" : f"model_{self.name[-1]}",
             "hash" : hash_value,
             "transactions" : transaction_ids,
@@ -127,11 +127,19 @@ class Miner:
                 prediction = np.argmax(prediction, axis=1).tolist()
                 predictions[key] = prediction
         
-        requests.post("http://localhost:3000/api/pred/", json={
+        print()
+        requests.post(f"http://localhost:{self.peer_port}/api/pred/", json={
             "id" : f"pred_{self.name[-1]}",
             "predictions" : predictions
         })
     
     def vote(self):
         self.get_predictions()
-        print(self.predictions)
+        labels = self.y_test[self.test_indexes]
+        metrics = {}
+        for key in self.predictions.keys():
+            pred = np.array(self.predictions[key]['prediction'])
+            acc = (pred == labels).sum() / len(labels)
+            dt = datetime.datetime.fromisoformat(self.predictions[key]['time'][:-1])
+            metrics[key] = (acc, dt)
+        print(metrics)

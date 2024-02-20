@@ -2,6 +2,8 @@
 
 const { TextDecoder } = require("util");
 const utf8Decoder = new TextDecoder();
+const { Semaphore } = require('async-mutex');
+const semaphore = new Semaphore(1);
 
 class DemoApp {
     /*
@@ -82,9 +84,15 @@ class DemoApp {
 
     async assignTransactions(contract, minerName, count) {
         try {
-            const transactionsBinary = await (await contract).submitTransaction("AssignTransactions", minerName, count);
-            const transactionsString = utf8Decoder.decode(transactionsBinary);
-            return JSON.parse(transactionsString);
+            return await semaphore.runExclusive(async () => {
+                return await (await contract).submitTransaction("AssignTransactions", minerName, count);
+            }).then((transactionsBinary) => {
+                const transactionsString = utf8Decoder.decode(transactionsBinary);
+                return JSON.parse(transactionsString);
+            });
+            // const transactionsBinary = await (await contract).submitTransaction("AssignTransactions", minerName, count);
+            // const transactionsString = utf8Decoder.decode(transactionsBinary);
+            // return JSON.parse(transactionsString);
         } catch (error) {
             console.log(error);
             return error;

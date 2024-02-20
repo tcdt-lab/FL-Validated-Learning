@@ -135,10 +135,14 @@ app.get('/api/demo/transactions/', async (req, res) => {
 });
 
 app.post('/api/demo/transactions/assign/', jsonParser, async (req, res) => {
-   const transactions = await demoApp.assignTransactions(contractDemo, req.body.minerName, req.body.count.toString());
-   res.send(transactions);
+    // await semaphore.runExclusive(async () => {
+    //     return await demoApp.assignTransactions(contractDemo, req.body.minerName, req.body.count.toString());
+    // }).then((transactions) => {
+    //     res.send(transactions)
+    // });
+    const transactions = await demoApp.assignTransactions(contractDemo, req.body.minerName, req.body.count.toString());
+    res.send(transactions);
 });
-
 
 /*
 * Main application API
@@ -198,6 +202,11 @@ app.post("/api/pred/ledger/", async (req, res) => {
 app.get("/api/preds/", async (req, res) => {
    const predictions = await predApp.getAllPredictions(contractPred);
    res.send(predictions);
+});
+
+app.get("/api/preds/miner/", jsonParser, async (req, res) => {
+    const predictions = await predApp.gatherAllPredictions(contractPred, req.body.id);
+    res.send(predictions);
 });
 
 app.get("/api/pred/", jsonParser, async (req, res) => {

@@ -39,7 +39,7 @@ const modelProposeDeadline = 1;
 const predProposeDeadline = 0.5;
 
 // miners ports
-const minersPorts = [8000, 8001]
+const minersPorts = [8000, 8001, 8002, 8003]
 
 // contract for each chaincode
 const contractDemo = InitConnection("demo", "demoCC");
@@ -176,11 +176,13 @@ app.get('/api/demo/transactions/', async (req, res) => {
 });
 
 app.post('/api/demo/transactions/assign/', jsonParser, async (req, res) => {
-    await semaphore.runExclusive(async () => {
-        return await demoApp.assignTransactions(contractDemo, req.body.minerName, req.body.count.toString());
-    }).then((transactions) => {
-        res.send(transactions)
-    });
+    // await semaphore.runExclusive(async () => {
+    //     return await demoApp.assignTransactions(contractDemo, req.body.minerName, req.body.count.toString());
+    // }).then((transactions) => {
+    //     res.send(transactions)
+    // });
+    const transactions = await demoApp.assignTransactions(contractDemo, req.body.minerName, req.body.count.toString());
+    res.send(transactions);
 });
 
 
@@ -252,7 +254,7 @@ app.get("/api/preds/", async (req, res) => {
 app.get("/api/preds/miner/", jsonParser, async (req, res) => {
     const predictions = await predApp.gatherAllPredictions(contractPred, req.body.id);
     res.send(predictions);
-})
+});
 
 app.get("/api/pred/", jsonParser, async (req, res) => {
    const pred = await predApp.readPrediction(contractPred, req.body.id);

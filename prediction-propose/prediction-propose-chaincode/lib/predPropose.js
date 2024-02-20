@@ -47,7 +47,7 @@ class PredPropose extends Contract {
         return predBinary && predBinary.length > 0;
     }
 
-    async CreatePrediction(ctx, id, predictions) {
+    async CreatePrediction(ctx, id, predictions, time) {
         /*
         * Creates a prediction based on given arguments.
         * */
@@ -62,7 +62,8 @@ class PredPropose extends Contract {
         }
         const pred = {
             id : id,
-            predictions : JSON.parse(predictions)
+            predictions : JSON.parse(predictions),
+            time : time
         }
 
         await ctx.stub.putState(pred.id, Buffer.from(stringify(sortKeysRecursive(pred))));
@@ -125,7 +126,10 @@ class PredPropose extends Contract {
         let specificPrediction = {};
         for (const prediction of predictions) {
             if (prediction.predictions[id] != null) {
-                specificPrediction[prediction.id] = prediction.predictions[id];
+                specificPrediction[prediction.id] = {
+                    "prediction" : prediction.predictions[id],
+                    "time" : prediction.time
+                };
             }
         }
         return JSON.stringify(specificPrediction);

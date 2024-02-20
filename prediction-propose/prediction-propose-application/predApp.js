@@ -38,7 +38,8 @@ class PredApp {
         * Invokes the create prediction function of chaincode modelCC.
         * */
         try {
-            await (await contract).submitTransaction("CreatePrediction", id, predictions);
+            const datetime = new Date();
+            await (await contract).submitTransaction("CreatePrediction", id, predictions, datetime.toISOString());
             return "The prediction was successfully created."
         } catch (error) {
             console.log(error);

@@ -1,7 +1,7 @@
 from Miner import *
 
 
-miner = Miner("miner_2")
+miner = Miner("miner_4", peer_port=3001)
 miner.get_data()
 executer = concurrent.futures.ThreadPoolExecutor(2)
 app = Flask(__name__)
@@ -25,4 +25,4 @@ def preds():
     return "I am voting."
 
 if __name__ == '__main__':
-    app.run(host="localhost", port=8001, debug=True)
+    app.run(host="localhost", port=8003, debug=True)
