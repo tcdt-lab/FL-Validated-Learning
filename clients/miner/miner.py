@@ -10,11 +10,14 @@ import hashlib
 import numpy as np
 
 class TimerCallback(tf.keras.callbacks.Callback):
+    def __init__(self, deadline):
+        super().__init__()
+        self.deadline = deadline
     # TODO: test this.
     # Checks whether the miner has time to train or not. if not it stops the training and sends the model to the ledger.
     def on_epoch_end(self, epoch, logs=None):
         current_time = time.time() / 60
-        if current_time > miner.deadline:
+        if current_time > self.deadline:
             self.model.stop_training = True 
 
 
@@ -72,6 +75,12 @@ class Miner:
         imgs = np.pad(imgs, ((0, 0), (2, 2), (2, 2)), constant_values=0.0)
         return np.expand_dims(imgs, -1)
 
+    def get_predictions(self):
+        res = requests.get("http://localhost:3000/api/preds/miner",
+                            json={
+                                "id" : f"model_{self.name[-1]}"
+                            })
+        self.predictions = json.loads(res.content)
 
     def train(self):
         # Complete flow of the training step
@@ -88,9 +97,9 @@ class Miner:
               optimizer="adam",
               metrics=["accuracy"])
 
-        self.model.fit(self.X_train, self.y_train, epochs=10, batch_size=32, callbacks=[TimerCallback()])
+        self.model.fit(self.X_train, self.y_train, epochs=10, batch_size=32, callbacks=[TimerCallback(self.deadline)])
 
-        self.current_model = f"./model_1_{datetime.datetime.now()}.h5"
+        self.current_model = f"./{self.name}_{datetime.datetime.now()}.h5"
         self.model.save(self.current_model)
 
         print("Model trained.")
@@ -107,25 +116,22 @@ class Miner:
     
     def predict(self):
         self.get_test_records()
-        print(self.test_records)
+        
+        predictions = {}
+        for key in self.test_records.keys():
+            if key[-1] != self.name[-1]:
+                test_data = self.test_records[key]
+                test_data = np.array(test_data)
+                test_data = self.preprocess(test_data)
+                prediction = self.model.predict(test_data)
+                prediction = np.argmax(prediction, axis=1).tolist()
+                predictions[key] = prediction
+        
+        requests.post("http://localhost:3000/api/pred/", json={
+            "id" : f"pred_{self.name[-1]}",
+            "predictions" : predictions
+        })
     
-# miner = Miner("miner_1")
-# miner.get_data()
-# executer = concurrent.futures.ThreadPoolExecutor(2)
-# app = Flask(__name__)
-
-# @app.route("/transactions/ready/")
-# def transactions():
-#     # Handles HTTP requests for starting the training step
-#     deadline = request.args.get('time')
-#     miner.deadline = (time.time() / 60) + int(deadline) - 0.5
-#     executer.submit(miner.train)
-#     return "training started."
-
-# @app.route("/tests/ready/")
-# def tests():
-#     executer.submit(miner.predict)
-#     return "I am getting the tests."
-
-# if __name__ == '__main__':
-#     app.run(host="localhost", port=8000, debug=True)
+    def vote(self):
+        self.get_predictions()
+        print(self.predictions)

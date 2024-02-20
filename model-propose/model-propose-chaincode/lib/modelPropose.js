@@ -62,6 +62,11 @@ class ModelPropose extends Contract {
         * */
 
         // TODO: Insert check for accepting status
+        const acceptingBinary = await ctx.stub.invokeChaincode("demoCC", ["GetAcceptingStatus"], "demo");
+        const accepting = Boolean(acceptingBinary.toString());
+        if (! accepting) {
+            throw Error(`Sorry, we are not accepting models right now.`);
+        }
 
         const modelExists = await this.ModelExists(ctx, id);
         if (modelExists) {
@@ -133,12 +138,9 @@ class ModelPropose extends Contract {
     async GatherAllTestRecords(ctx) {
         const modelsString = await this.GetAllModels(ctx);
         const models = JSON.parse(modelsString);
-        const testRecords = [];
+        const testRecords = {};
         for (const model of models) {
-            const testRecord = {
-                [model.id] : model.testData
-            }
-            testRecords.push(testRecord)
+            testRecords[model.id] = model.testData
         }
         const testRecordsBlock = {
             id : "testRecords",

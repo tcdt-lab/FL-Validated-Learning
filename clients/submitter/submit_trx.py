@@ -26,4 +26,4 @@ while True:
     res = requests.post("http://localhost:3001/api/demo/transaction/transfer/", json=data)
     print(f"Transaction demo_{counter} submitted.")
     counter += 1
-    time.sleep(10)
+    time.sleep(5)

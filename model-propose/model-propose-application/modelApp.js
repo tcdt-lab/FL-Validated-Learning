@@ -84,6 +84,17 @@ class ModelApp {
         }
     }
 
+    async getAcceptingStatus(contract) {
+        try {
+            const acceptingBinary = await (await contract).evaluateTransaction("GetAcceptingStatus");
+            const acceptingString = utf8decoder.decode(acceptingBinary);
+            return JSON.parse(acceptingString);
+        } catch (error) {
+            console.log(error);
+            return error;
+        }
+    }
+
 }
 
 module.exports = {

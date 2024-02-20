@@ -72,6 +72,30 @@ class PredApp {
             return error;
         }
     }
+
+    async toggleAcceptingStatus(contract) {
+        try {
+            await (await contract).submitTransaction("ToggleAcceptingStatus");
+            return "Prediction proposal accepting status was successfully toggled."
+        } catch (error) {
+            console.log(error);
+            return error;
+        }
+    }
+
+    async gatherAllPredictions(contract, id) {
+        /*
+        * Invokes the get all predictions function of chaincode modelCC.
+        * */
+        try {
+            const predictionsBinary = await (await contract).evaluateTransaction("GatherAllPredictions", id);
+            const predictionsString = utf8Decoder.decode(predictionsBinary);
+            return JSON.parse(predictionsString);
+        } catch (error) {
+            console.log(error);
+            return error;
+        }
+    }
 }
 
 module.exports = {

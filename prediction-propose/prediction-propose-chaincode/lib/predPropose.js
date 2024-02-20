@@ -10,30 +10,33 @@ class PredPropose extends Contract {
         /*
         * Initializes the ledger with some predefined predictions.
         * */
-        const predictions = [
-            {
-                id : "pred_1",
-                predictions : [
-                    {
-                        testId : "2",
-                        prediction : [0, 1, 1]
-                    }
-                ]
-            },
-            {
-                id : "pred_2",
-                predictions : [
-                    {
-                        testId : "1",
-                        prediction : [1, 0, 0]
-                    }
-                ]
-            },
-        ];
+        const accepting = {
+            id : "predAcceptingInfo",
+            accepting : false
+        };
 
-        for (const pred of predictions) {
-            await ctx.stub.putState(pred.id, Buffer.from(stringify(sortKeysRecursive(pred))));
-        }
+        await ctx.stub.putState(accepting.id, Buffer.from(stringify(sortKeysRecursive(accepting))));
+    }
+
+    async ToggleAcceptingStatus(ctx) {
+        /*
+        * Toggles the accepting status at this moment
+        * */
+        const infoBytes = await ctx.stub.getState("predAcceptingInfo");
+        const infoString = infoBytes.toString();
+        let info = JSON.parse(infoString);
+        info.accepting = !info.accepting;
+        await ctx.stub.putState(info.id, Buffer.from(stringify(sortKeysRecursive(info))));
+    }
+
+    async GetAcceptingStatus(ctx) {
+        /*
+        * Returns the accepting status at this moment
+        * */
+        const infoBytes = await ctx.stub.getState("predAcceptingInfo");
+        const infoString = infoBytes.toString();
+        const info = JSON.parse(infoString);
+        return info.accepting;
     }
 
     async PredictionExists(ctx, id) {
@@ -48,6 +51,11 @@ class PredPropose extends Contract {
         /*
         * Creates a prediction based on given arguments.
         * */
+        const accepting = await this.GetAcceptingStatus(ctx);
+        if (!accepting) {
+            throw Error("Sorry, we are not accepting predictions at the moment.");
+        }
+
         const predExists = await this.PredictionExists(ctx, id);
         if (predExists) {
             throw Error(`A prediction already exists with id ${id}.`);
@@ -103,12 +111,24 @@ class PredPropose extends Contract {
                 console.log(err);
                 record = strValue;
             }
-            if (record.id.startsWith("pred")) {
+            if (record.id.startsWith("pred_")) {
                 allResults.push(record);
             }
             result = await iterator.next();
         }
         return JSON.stringify(allResults);
+    }
+
+    async GatherAllPredictions(ctx, id) {
+        const predictionsString = await this.GetAllPredictions(ctx);
+        const predictions = JSON.parse(predictionsString);
+        let specificPrediction = {};
+        for (const prediction of predictions) {
+            if (prediction.predictions[id] != null) {
+                specificPrediction[prediction.id] = prediction.predictions[id];
+            }
+        }
+        return JSON.stringify(specificPrediction);
     }
 }
 

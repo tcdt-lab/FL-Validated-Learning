@@ -35,7 +35,7 @@ const peerEndPoint = "localhost:7051";
 const peerHostAlias = "peer0.org1.example.com";
 
 // deadlines for each step
-const modelProposeDeadline = 5;
+const modelProposeDeadline = 1;
 const predProposeDeadline = 0.5;
 
 // miners ports
@@ -106,19 +106,31 @@ async function InitConnection(channelName, chaincodeName) {
     return network.getContract(chaincodeName);
 }
 
+async function gatherPredictions() {
+    await predApp.toggleAcceptingStatus(contractPred);
+    for (const port of minersPorts) {
+        await axios.get(`http://localhost:${port}/preds/ready/`, {
+            params : {
+                status : "ready",
+            }
+        });
+    }
+    console.log("Miners are notified to vote the predictions.");
+}
+
 async function gatherTestData() {
     await demoApp.toggleAcceptingStatus(contractDemo);
-    // TODO: toggle predApp accepting status
+    await predApp.toggleAcceptingStatus(contractPred);
     await modelApp.gatherAllTestRecords(contractModel);
-    for (const port in minersPorts) {
+    for (const port of minersPorts) {
         await axios.get(`http://localhost:${port}/tests/ready/`, {
-        params : {
-            status : "ready",
-        }
-    });
+            params : {
+                status : "ready",
+            }
+        });
     }
     console.log("Miners are notified to predict test data records.");
-    // TODO: setTimeout() for prediction
+    setTimeout(gatherPredictions, predProposeDeadline*60*1000)
 }
 
 app.get('/', (req, res) => {
@@ -219,6 +231,11 @@ app.get('/api/models/', async (req, res) => {
     res.send(models);
 });
 
+app.get('/api/model/accepting/', async (req, res) => {
+    const message = await modelApp.getAcceptingStatus(contractModel);
+    res.send(message)
+});
+
 /*
 * Pred application API
 * */
@@ -231,6 +248,11 @@ app.get("/api/preds/", async (req, res) => {
    const predictions = await predApp.getAllPredictions(contractPred);
    res.send(predictions);
 });
+
+app.get("/api/preds/miner/", jsonParser, async (req, res) => {
+    const predictions = await predApp.gatherAllPredictions(contractPred, req.body.id);
+    res.send(predictions);
+})
 
 app.get("/api/pred/", jsonParser, async (req, res) => {
    const pred = await predApp.readPrediction(contractPred, req.body.id);
@@ -285,13 +307,13 @@ app.delete("/api/vote/", jsonParser, async (req, res) => {
 app.post('/api/demo/start/', async (req, res) => {
     // Starts the flow of the system by allowing transaction assignment and model proposal
     await demoApp.toggleAcceptingStatus(contractDemo);
-    for (const port in minersPorts) {
+    for (const port of minersPorts) {
         await axios.get(`http://localhost:${port}/transactions/ready/`, {
-        params : {
-            status : "ready",
-            time : modelProposeDeadline
-        }
-    });
+            params : {
+                status : "ready",
+                time : modelProposeDeadline
+            }
+        });
     }
     setTimeout(gatherTestData, modelProposeDeadline*60*1000)
     res.send("Miners are notified.")
