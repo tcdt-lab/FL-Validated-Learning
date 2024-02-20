@@ -5,6 +5,8 @@ const { DemoApp } = require("../demo-coin-transfer/demo-coin-transfer-applicatio
 const demoApp = new DemoApp();
 const { MainApp } = require("../main-coin-transfer/main-coin-transfer-application/mainApp");
 const mainApp = new MainApp();
+const { ModelApp } = require("../model-propose/model-propose-application/modelApp");
+const modelApp = new ModelApp();
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -29,8 +31,9 @@ const peerEndPoint = "localhost:7051";
 const peerHostAlias = "peer0.org1.example.com";
 
 // contract for each chaincode
-const contractDemo = InitConnection("demo", "demoCC");
-const contractMain = InitConnection("main", "mainCC");
+// const contractDemo = InitConnection("demo", "demoCC");
+// const contractMain = InitConnection("main", "mainCC");
+const contractModel = InitConnection("model", "modelCC");
 
 async function newGrpcConnection() {
     const tlsRootCert = await fs.readFile(tlsCertPath);
@@ -143,6 +146,35 @@ app.get('/api/main/wallet/', jsonParser, async (req, res) => {
     const wallet = await mainApp.readWallet(contractMain, req.body.id);
     res.send(wallet);
 });
+
+
+/*
+* Model application API
+* */
+app.post('/api/model/ledger/', async (req, res) => {
+    const message = await modelApp.initLedger(contractModel);
+    res.send(message);
+});
+
+app.post('/api/model/', jsonParser, async (req, res) => {
+    const message = await modelApp.createModel(contractModel, req.body.id, req.body.hash, JSON.stringify(req.body.transactions))
+    res.send(message);
+});
+
+app.get('/api/model/', jsonParser, async (req, res) => {
+    const model = await modelApp.readModel(contractModel, req.body.id);
+    res.send(model);
+});
+
+app.delete('/api/model/', jsonParser, async (req, res) => {
+    const message = await modelApp.deleteModel(contractModel, req.body.id);
+    res.send(message);
+});
+
+app.get('/api/models/', async (req, res) => {
+    const models = await modelApp.getAllModels(contractModel);
+    res.send(models);
+})
 
 app.listen(port, () => {
     console.log("Server is listening on localhost:3000.");
