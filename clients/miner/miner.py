@@ -8,6 +8,7 @@ import concurrent.futures
 import random
 import hashlib
 import numpy as np
+from functools import cmp_to_key
 
 class TimerCallback(tf.keras.callbacks.Callback):
     def __init__(self, deadline):
@@ -81,6 +82,14 @@ class Miner:
                                 "id" : f"model_{self.name[-1]}"
                             })
         self.predictions = json.loads(res.content)
+    
+    def custom_compare(self, a, b): 
+        a, b = a[1], b[1]
+        if (a[0] > b[0]) or ((a[0] == b[0]) and (a[1] < b[1])): 
+            return 1
+        if (a == b):
+            return 0
+        return -1
 
     def train(self):
         # Complete flow of the training step
@@ -126,8 +135,6 @@ class Miner:
                 prediction = self.model.predict(test_data)
                 prediction = np.argmax(prediction, axis=1).tolist()
                 predictions[key] = prediction
-        
-        print()
         requests.post(f"http://localhost:{self.peer_port}/api/pred/", json={
             "id" : f"pred_{self.name[-1]}",
             "predictions" : predictions
@@ -142,4 +149,10 @@ class Miner:
             acc = (pred == labels).sum() / len(labels)
             dt = datetime.datetime.fromisoformat(self.predictions[key]['time'][:-1])
             metrics[key] = (acc, dt)
-        print(metrics)
+        metrics = {k: v for k, v in sorted(metrics.items(), key=cmp_to_key(self.custom_compare), reverse=True)}
+        votes = [f"model_{key[-1]}" for key in metrics.keys()]
+        print(votes)
+        requests.post(f"http://localhost:{self.peer_port}/api/vote/", json={
+            "id" : f"vote_{self.name[-1]}",
+            "votes" : votes
+        })
