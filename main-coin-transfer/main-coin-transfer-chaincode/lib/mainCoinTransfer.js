@@ -5,25 +5,22 @@ const sortKeysRecursive = require("sort-keys-recursive");
 const { Contract } = require("fabric-contract-api");
 
 class MainCoinTransfer extends  Contract {
-    async InitLedger(ctx) {
+    async InitWallets(ctx) {
         /*
         * Initializes a ledger with some predefined wallets.
         * */
 
         const wallets = [
             {
-                id : "1",
-                name : "Voldemort",
+                id : "main_1",
                 amount : 1.0,
             },
             {
-                id : "2",
-                name : "Dumbledore",
+                id : "main_2",
                 amount : 2.0,
             },
             {
-                id : "3",
-                name : "Snape",
+                id : "main_3",
                 amount : 3.0,
             }
         ];

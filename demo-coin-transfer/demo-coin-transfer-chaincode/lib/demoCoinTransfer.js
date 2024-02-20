@@ -5,7 +5,7 @@ const sortKeysRecursive = require("sort-keys-recursive");
 const { Contract } = require("fabric-contract-api");
 
 class DemoCoinTransfer extends  Contract {
-    async InitLedger(ctx) {
+    async InitTransactions(ctx) {
         /*
         * Initializes a ledger with some predefined transactions.
         *
@@ -22,28 +22,25 @@ class DemoCoinTransfer extends  Contract {
 
         const transactions = [
             {
-                id : "1",
+                id : "demo_1",
                 method : "put",
                 walletId : "4",
-                name : "Harry",
                 amount : 1.0,
-                assigned : NaN,
+                assigned : null,
             },
             {
-                id: "2",
+                id: "demo_2",
                 method : "put",
                 walletId : "5",
-                name : "Ron",
                 amount : 2.0,
-                assigned : NaN,
+                assigned : null,
             },
             {
-                id: "3",
+                id: "demo_3",
                 method : "put",
                 walletId : "6",
-                name : "Hermione",
                 amount : 3.0,
-                assigned : NaN,
+                assigned : null,
             }
         ];
 
@@ -83,7 +80,7 @@ class DemoCoinTransfer extends  Contract {
         return TrxBytes.toString();
     }
     //
-    async CreateWalletTrx(ctx, id, walletId, name, amount) {
+    async CreateWalletTrx(ctx, id, walletId, amount) {
         /*
         * Validates and creates a "create wallet" transaction based on the inputs it receives.
         * */
@@ -102,15 +99,14 @@ class DemoCoinTransfer extends  Contract {
             id : id,
             method : "put",
             walletId : walletId,
-            name : name,
             amount : parseFloat(JSON.parse(amount)),
-            assigned : NaN
+            assigned : null
         };
 
         await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
     }
     //
-    async UpdateWalletTrx(ctx, id, walletId, name, amount) {
+    async UpdateWalletTrx(ctx, id, walletId, amount) {
         /*
         * Validates and creates "update wallet" transaction for an already existing wallet based on the inputs it receives.
         * */
@@ -128,10 +124,9 @@ class DemoCoinTransfer extends  Contract {
         const trx = {
             id : id,
             method : "put",
-            name : name,
             walletId : walletId,
-            amount : parseFloat(JSON.parse(amount)),
-            assigned : NaN
+            amount : parseFloat(amount),
+            assigned : null
         };
 
         await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
@@ -156,7 +151,7 @@ class DemoCoinTransfer extends  Contract {
             id : id,
             method : "delete",
             walletId : walletId,
-            assigned : NaN
+            assigned : null
         }
 
         await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
@@ -180,7 +175,9 @@ class DemoCoinTransfer extends  Contract {
                 console.log(err);
                 record = strValue;
             }
-            allResults.push(record);
+            if (record.id.startsWith("demo")) {
+                allResults.push(record);
+            }
             result = await iterator.next();
         }
         return JSON.stringify(allResults);
@@ -213,7 +210,7 @@ class DemoCoinTransfer extends  Contract {
             senderId : senderId,
             receiverId : receiverId,
             amount : amount,
-            assigned : NaN
+            assigned : null
         }
 
         await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
