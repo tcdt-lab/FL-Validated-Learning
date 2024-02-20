@@ -58,7 +58,7 @@ class DemoCoinTransfer extends  Contract {
         * */
 
         const chaincodeResponse = await ctx.stub.invokeChaincode("mainCC", ["WalletExists", walletId], "main");
-        return chaincodeResponse.payload.toString();
+        return JSON.parse(chaincodeResponse.payload.toString());
     }
 
     async DemoTrxExists(ctx, id){
@@ -142,7 +142,7 @@ class DemoCoinTransfer extends  Contract {
         * Validates and creates a "delete wallet" transaction using an already existing wallet's id.
         * */
 
-        const walletExists = this.WalletExists(ctx, id);
+        const walletExists = this.MainWalletExists(ctx, id);
         if (!walletExists) {
             throw Error(`No wallet exists with id ${id}`);
         }
@@ -219,7 +219,7 @@ class DemoCoinTransfer extends  Contract {
         await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
     }
 
-    async AssignTransactions(ctx, miner_name, count) {
+    async AssignTransactions(ctx, minerName, count) {
         const assigned = [];
         count = parseInt(count)
         const iterator = await ctx.stub.getStateByRange('', '');
@@ -234,9 +234,9 @@ class DemoCoinTransfer extends  Contract {
                 record = strValue;
             }
             if (record.assigned === null) {
-                record.assigned = miner_name;
+                record.assigned = minerName;
+                assigned.push(record);
             }
-            assigned.push(record);
             result = await iterator.next();
         }
         for (const trx of assigned) {
