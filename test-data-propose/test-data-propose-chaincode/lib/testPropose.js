@@ -8,6 +8,9 @@ const { Contract } = require("fabric-contract-api");
 class TestPropose extends  Contract {
 
     async InitLedger(ctx) {
+        /*
+        * Initializes a ledger with some predefined test data.
+        * */
         const tests = [
             {
                 id : "1",
@@ -27,11 +30,17 @@ class TestPropose extends  Contract {
     }
 
     async TestExists(ctx, id) {
+        /*
+        * Checks whether a test data exist with the given id.
+        * */
         const testBinary = await ctx.stub.getState(id);
         return testBinary && testBinary.length > 0;
     }
 
     async CreateTest(ctx, id, minerName, data) {
+        /*
+        * Creates a test data with the given argument.
+        * */
         const testExists = await this.TestExists(ctx, id);
         if (testExists) {
             throw Error(`A test data already exists with id ${id}.`);
@@ -47,6 +56,9 @@ class TestPropose extends  Contract {
     }
 
     async UpdateTest(ctx, id, minerName, data) {
+        /*
+        * Updates an existing test data.
+        * */
         const testExists = await this.TestExists(ctx, id);
         if (!testExists) {
             throw Error(`No test data exists with id ${id}.`);
@@ -61,6 +73,9 @@ class TestPropose extends  Contract {
     }
 
     async ReadTest(ctx, id) {
+        /*
+        * Reads an existing test data using its given id.
+        * */
         const testBinary = await ctx.stub.getState(id);
         if (!testBinary || testBinary.length === 0) {
             throw Error(`No test data exists with id ${id}.`);
@@ -69,6 +84,9 @@ class TestPropose extends  Contract {
     }
 
     async DeleteTest(ctx, id) {
+        /*
+        * Deletes a test data using its id.
+        * */
         const testExists = await this.TestExists(ctx, id);
         if (!testExists) {
             throw Error(`No test data exists with id ${id}.`);

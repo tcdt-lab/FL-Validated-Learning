@@ -7,6 +7,8 @@ const { MainApp } = require("../main-coin-transfer/main-coin-transfer-applicatio
 const mainApp = new MainApp();
 const { ModelApp } = require("../model-propose/model-propose-application/modelApp");
 const modelApp = new ModelApp();
+const { TestApp } = require("../test-data-propose/test-data-propose-application/testApp");
+const testApp = new TestApp();
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -33,7 +35,8 @@ const peerHostAlias = "peer0.org1.example.com";
 // contract for each chaincode
 // const contractDemo = InitConnection("demo", "demoCC");
 // const contractMain = InitConnection("main", "mainCC");
-const contractModel = InitConnection("model", "modelCC");
+// const contractModel = InitConnection("model", "modelCC");
+const contractTest = InitConnection("test", "testCC");
 
 async function newGrpcConnection() {
     const tlsRootCert = await fs.readFile(tlsCertPath);
@@ -174,8 +177,37 @@ app.delete('/api/model/', jsonParser, async (req, res) => {
 app.get('/api/models/', async (req, res) => {
     const models = await modelApp.getAllModels(contractModel);
     res.send(models);
+});
+
+
+/*
+* Test application API
+* */
+
+app.get('/api/tests/', async (req, res) => {
+    const tests = await testApp.getAllTests(contractTest);
+    res.send(tests);
+});
+
+app.get('/api/test/', jsonParser, async (req, res) => {
+    const test = await testApp.readTest(contractTest, req.body.id);
+    res.send(test);
 })
 
+app.post('/api/test/', jsonParser, async (req, res) => {
+   const message = await testApp.createTest(contractTest, req.body.id, req.body.minerName, JSON.stringify(req.body.data));
+   res.send(message);
+});
+
+app.put('/api/test/', jsonParser, async (req, res) => {
+   const message = await testApp.updateTest(contractTest, req.body.id, req.body.minerName, JSON.stringify(req.body.data));
+   res.send(message)
+});
+
+app.delete('/api/test/', jsonParser, async (req, res) => {
+    const message = await testApp.deleteTest(contractTest, req.body.id);
+    res.send(message);
+})
 app.listen(port, () => {
     console.log("Server is listening on localhost:3000.");
 });

@@ -1,0 +1,11 @@
+{
+  "name": "test-data-propose-application",
+  "version": "1.0.0",
+  "description": "The test data proposition application for interacting with test chaincode.",
+  "main": "testApp.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Amirreza Sokhankhosh",
+  "license": "ISC"
+}
