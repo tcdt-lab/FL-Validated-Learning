@@ -73,7 +73,7 @@ class Miner:
         
         self.X_train = self.X_train / 255
 
-        self.model.fit(self.X_train, self.y_train, epochs=20, batch_size=32, callbacks=[TimerCallback()])
+        self.model.fit(self.X_train, self.y_train, epochs=10, batch_size=32, callbacks=[TimerCallback()])
 
         self.current_model = f"./model_1_{datetime.datetime.now()}.h5"
         self.model.save(self.current_model)
