@@ -218,6 +218,32 @@ class DemoCoinTransfer extends  Contract {
 
         await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
     }
+
+    async AssignTransactions(ctx, miner_name, count) {
+        const assigned = [];
+        count = parseInt(count)
+        const iterator = await ctx.stub.getStateByRange('', '');
+        let result = await iterator.next();
+        while (!result.done && assigned.length < count) {
+            const strValue = Buffer.from(result.value.value.toString()).toString('utf8');
+            let record;
+            try {
+                record = JSON.parse(strValue);
+            } catch (err) {
+                console.log(err);
+                record = strValue;
+            }
+            if (record.assigned === null) {
+                record.assigned = miner_name;
+            }
+            assigned.push(record);
+            result = await iterator.next();
+        }
+        for (const trx of assigned) {
+            await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
+        }
+        return JSON.stringify(assigned);
+    }
 }
 
 module.exports = DemoCoinTransfer;
