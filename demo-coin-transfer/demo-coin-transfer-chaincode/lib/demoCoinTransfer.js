@@ -239,6 +239,9 @@ class DemoCoinTransfer extends  Contract {
             }
             result = await iterator.next();
         }
+        if (assigned.length === 0) {
+            throw Error("Sorry, no unassigned transaction exists at the moment.");
+        }
         for (const trx of assigned) {
             await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
         }

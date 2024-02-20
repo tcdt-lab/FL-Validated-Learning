@@ -1,7 +1,10 @@
 'use strict';
 
-const { DemoApp } = require("../demo-coin-transfer/demo-coin-transfer-application/demoApp")
+// Application functions of each chaincode
+const { DemoApp } = require("../demo-coin-transfer/demo-coin-transfer-application/demoApp");
 const demoApp = new DemoApp();
+const { MainApp } = require("../main-coin-transfer/main-coin-transfer-application/mainApp");
+const mainApp = new MainApp();
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -15,8 +18,6 @@ const {connect, Contract, Identity, Signer, signers} = require("@hyperledger/fab
 const fs = require("fs/promises");
 const path = require("path");
 
-const channelName = "demo";
-const chaincodeName = "demoCC";
 const mspId = "Org1MSP";
 
 const cryptoPath = path.resolve(__dirname, '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com');
@@ -27,7 +28,9 @@ const tlsCertPath = path.resolve(cryptoPath, 'peers', 'peer0.org1.example.com', 
 const peerEndPoint = "localhost:7051";
 const peerHostAlias = "peer0.org1.example.com";
 
-const contract = InitConnection();
+// contract for each chaincode
+const contractDemo = InitConnection("demo", "demoCC");
+const contractMain = InitConnection("main", "mainCC");
 
 async function newGrpcConnection() {
     const tlsRootCert = await fs.readFile(tlsCertPath);
@@ -50,7 +53,10 @@ async function newSigner() {
     return signers.newPrivateKeySigner(privateKey);
 }
 
-async function InitConnection() {
+async function InitConnection(channelName, chaincodeName) {
+    /*
+    * Returns a contract for a given channel and chaincode.
+    * */
     const client = await newGrpcConnection();
 
     const gateway = connect({
@@ -78,47 +84,64 @@ async function InitConnection() {
 }
 
 app.get('/', (req, res) => {
-    res.send("Hello World!");
+    res.send("Hello World! from demo.");
 });
 
+/*
+* Demo application API
+* */
 app.post('/api/demo/ledger/', async (req, res) => {
-    await demoApp.initLedger(contract);
-    res.send("Demo ledger was successfully initialized.");
+    const message = await demoApp.initLedger(contractDemo);
+    res.send(message);
 });
 
 app.get('/api/demo/transaction/', jsonParser, async (req, res) => {
-   const trx = await demoApp.readTrx(contract, req.body.id);
+   const trx = await demoApp.readTrx(contractDemo, req.body.id);
    res.send(trx);
 });
 
 app.post('/api/demo/transaction/create/', jsonParser, async (req, res) => {
-   await demoApp.createWalletTrx(contract, req.body.id, req.body.walletId, req.body.name, req.body.amount);
-   res.send("'create wallet' transaction was successfully created.");
+   const message = await demoApp.createWalletTrx(contractDemo, req.body.id, req.body.walletId, req.body.name, req.body.amount.toString());
+   res.send(message);
 });
 
 app.post('/api/demo/transaction/update/', jsonParser, async (req, res) => {
-    await demoApp.updateWalletTrx(contract, req.body.id, req.body.walletId, req.body.name, req.body.amount);
-    res.send("'update wallet' transaction was successfully created.");
+    const message = await demoApp.updateWalletTrx(contractDemo, req.body.id, req.body.walletId, req.body.name, req.body.amount.toString());
+    res.send(message);
 });
 
 app.post('/api/demo/transaction/delete/', jsonParser, async (req, res) => {
-    await demoApp.deleteWalletTrx(contract, req.body.id, req.body.walletId);
-    res.send("'delete wallet' transaction was successfully created.");
+    const message = await demoApp.deleteWalletTrx(contractDemo, req.body.id, req.body.walletId);
+    res.send(message);
 });
 
 app.post('/api/demo/transaction/transfer/', jsonParser, async (req, res) => {
-    await demoApp.transferCoinsTrx(contract, req.body.id, req.body.senderId, req.body.receiverId, req.body.amount);
-    res.send("'transfer' transaction was successfully created.");
+    const message = await demoApp.transferCoinsTrx(contractDemo, req.body.id, req.body.senderId, req.body.receiverId, req.body.amount.toString());
+    res.send(message);
 })
 
 app.get('/api/demo/transactions/', async (req, res) => {
-    const transactions = await demoApp.getAllTransactions(contract);
+    const transactions = await demoApp.getAllTransactions(contractDemo);
     res.send(transactions);
 });
 
 app.post('/api/demo/transactions/assign/', jsonParser, async (req, res) => {
-   const transactions = await demoApp.assignTransactions(contract, req.body.minerName, req.body.count);
+   const transactions = await demoApp.assignTransactions(contractDemo, req.body.minerName, req.body.count.toString());
    res.send(transactions);
+});
+
+
+/*
+* Main application API
+* */
+app.get('/api/main/wallets/', jsonParser, async (req, res) => {
+    const wallets = await mainApp.getAllWallets(contractMain);
+    res.send(wallets);
+});
+
+app.get('/api/main/wallet/', jsonParser, async (req, res) => {
+    const wallet = await mainApp.readWallet(contractMain, req.body.id);
+    res.send(wallet);
 });
 
 app.listen(port, () => {
