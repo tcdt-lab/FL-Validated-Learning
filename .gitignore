@@ -35,3 +35,6 @@ install-fabric.sh
 
 # models
 **/*.h5
+
+# Jupyter Notebooks (for now)
+**/*.ipynb

@@ -7,6 +7,7 @@ import datetime
 import concurrent.futures
 import random
 import hashlib
+import numpy as np
 
 class TimerCallback(tf.keras.callbacks.Callback):
     # Checks whether the miner has time to train or not. if not it stops the training and sends the model to the ledger.
@@ -49,11 +50,18 @@ class Miner:
         test_size = len(y_test) // self.total_miners
         self.X_train, self.y_train = X_train[k*train_size:(k + 1)*train_size], y_train[k*train_size:(k + 1)*train_size]
         self.X_test, self.y_test = X_test[k*test_size:(k + 1)*test_size], y_test[k*test_size:(k + 1)*test_size]
+
+        self.X_train = self.preprocess(self.X_train)
     
     def get_random_test(self):
         # returns random indexes of test data for evaluating other miners
         self.test_indexes = random.sample(range(len(self.y_test)), self.test_size)
         return self.X_test[self.test_indexes]
+    
+    def preprocess(self, imgs):
+        imgs = imgs.astype("float64") / 255.0
+        imgs = np.pad(imgs, ((0, 0), (2, 2), (2, 2)), constant_values=0.0)
+        return np.expand_dims(imgs, -1)
 
 
     def train(self):
@@ -70,8 +78,6 @@ class Miner:
         self.model.compile(loss="sparse_categorical_crossentropy",
               optimizer="adam",
               metrics=["accuracy"])
-        
-        self.X_train = self.X_train / 255
 
         self.model.fit(self.X_train, self.y_train, epochs=10, batch_size=32, callbacks=[TimerCallback()])
 
