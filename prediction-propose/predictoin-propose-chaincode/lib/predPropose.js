@@ -8,6 +8,9 @@ const { Contract } = require("fabric-contract-api");
 class PredPropose extends Contract {
 
     async InitLedger(ctx) {
+        /*
+        * Initializes the ledger with some predefined predictions.
+        * */
         const predictions = [
             {
                 id : "1",
@@ -37,19 +40,25 @@ class PredPropose extends Contract {
     }
 
     async PredictionExists(ctx, id) {
-        const predBinary = ctx.stub.getState(id);
-        return predBinary && (await predBinary).length < 0;
+        /*
+        * Checks whether a prediction exists.
+        * */
+        const predBinary = await ctx.stub.getState(id);
+        return predBinary && predBinary.length > 0;
     }
 
     async CreatePrediction(ctx, id, minerName, predictions) {
-        const predExists = this.PredictionExists(ctx, id);
+        /*
+        * Creates a prediction based on given arguments.
+        * */
+        const predExists = await this.PredictionExists(ctx, id);
         if (predExists) {
             throw Error(`A prediction already exists with id ${id}.`);
         }
         const pred = {
             id : id,
             minerName : minerName,
-            predictions : predictions
+            predictions : JSON.parse(predictions)
         }
 
         await ctx.stub.putState(pred.id, Buffer.from(stringify(sortKeysRecursive(pred))));
@@ -58,6 +67,9 @@ class PredPropose extends Contract {
     }
 
     async ReadPrediction(ctx, id) {
+        /*
+        * Reads a prediction based on given id.
+        * */
         const predBinary = await ctx.stub.getState(id);
         if (!predBinary || predBinary.length === 0) {
             throw Error(`No prediction exists with id ${id}.`);
@@ -66,6 +78,9 @@ class PredPropose extends Contract {
     }
 
     async DeletePrediction(ctx, id) {
+        /*
+        * Deletes a prediction based on given id.
+        * */
         const predExists = this.PredictionExists(ctx, id);
         if (!predExists) {
             throw Error(`A prediction already exists with id ${id}.`);
@@ -76,7 +91,7 @@ class PredPropose extends Contract {
 
     async GetAllPredictions(ctx) {
         /*
-        * Returns all the existing test data records.
+        * Returns all the existing prediction records.
         * */
 
         const allResults = [];

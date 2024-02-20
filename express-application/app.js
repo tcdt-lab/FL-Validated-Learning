@@ -9,6 +9,8 @@ const { ModelApp } = require("../model-propose/model-propose-application/modelAp
 const modelApp = new ModelApp();
 const { TestApp } = require("../test-data-propose/test-data-propose-application/testApp");
 const testApp = new TestApp();
+const { PredApp } = require("../prediction-propose/prediction-propose-application/predApp");
+const predApp = new PredApp();
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -36,7 +38,8 @@ const peerHostAlias = "peer0.org1.example.com";
 // const contractDemo = InitConnection("demo", "demoCC");
 // const contractMain = InitConnection("main", "mainCC");
 // const contractModel = InitConnection("model", "modelCC");
-const contractTest = InitConnection("test", "testCC");
+// const contractTest = InitConnection("test", "testCC");
+const contractPred = InitConnection("pred", "predCC");
 
 async function newGrpcConnection() {
     const tlsRootCert = await fs.readFile(tlsCertPath);
@@ -183,7 +186,10 @@ app.get('/api/models/', async (req, res) => {
 /*
 * Test application API
 * */
-
+app.post("/api/test/ledger/", async (req, res) => {
+   const message = await testApp.initLedger(contractTest);
+   res.send(message);
+});
 app.get('/api/tests/', async (req, res) => {
     const tests = await testApp.getAllTests(contractTest);
     res.send(tests);
@@ -207,6 +213,34 @@ app.put('/api/test/', jsonParser, async (req, res) => {
 app.delete('/api/test/', jsonParser, async (req, res) => {
     const message = await testApp.deleteTest(contractTest, req.body.id);
     res.send(message);
+});
+
+/*
+* Pred application API
+* */
+app.post("/api/pred/ledger/", async (req, res) => {
+    const message = await predApp.initLedger(contractPred);
+    res.send(message);
+});
+
+app.get("/api/preds/", async (req, res) => {
+   const predictions = await predApp.getAllPredictions(contractPred);
+   res.send(predictions);
+});
+
+app.get("/api/pred/", jsonParser, async (req, res) => {
+   const pred = await predApp.readPrediction(contractPred, req.body.id);
+   res.send(pred);
+});
+
+app.post("/api/pred/", jsonParser, async (req, res) => {
+   const message = await predApp.createPrediction(contractPred, req.body.id, req.body.minerName, JSON.stringify(req.body.predictions));
+   res.send(message);
+});
+
+app.delete("/api/pred/", jsonParser, async (req, res) => {
+   const message = await predApp.deletePrediction(contractPred, req.body.id);
+   res.send(message)
 });
 
 app.listen(port, () => {
