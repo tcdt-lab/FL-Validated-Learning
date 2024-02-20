@@ -1,0 +1,14 @@
+{
+  "name": "test-data-propose-chaincode",
+  "version": "1.0.0",
+  "description": "The chaincode that is installed on the test channel for managing test data of different miners.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Amirreza Sokhankhosh",
+  "license": "ISC"
+}
