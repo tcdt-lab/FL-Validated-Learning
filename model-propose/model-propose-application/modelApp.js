@@ -6,12 +6,12 @@ const utf8decoder = new TextDecoder();
 class ModelApp {
     constructor() {}
 
-    async initLedger(contract) {
+    async initModels(contract) {
         /*
         * Invokes the initial ledger function of chaincode modelCC.
         * */
         try {
-            await (await contract).submitTransaction("InitLedger");
+            await (await contract).submitTransaction("InitWallets");
             return "Ledger was successfully initialized.";
         } catch (error) {
             console.log(error);

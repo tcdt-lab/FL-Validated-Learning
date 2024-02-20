@@ -6,28 +6,40 @@ const { Contract } = require("fabric-contract-api");
 
 
 class ModelPropose extends Contract {
-    async InitLedger(ctx) {
+    async InitModels(ctx) {
         /*
         * Initializes the ledger with some predefined models.
         * */
         const models = [
             {
-                id : "1",
-                minerName : "harry",
+                id : "model_1",
                 hash : "abcd",
-                transactions : ["1", "2", "3"]
+                transactions : ["demo_1", "demo_2", "demo_3"],
+                testData : [
+                    [1, 0, 0],
+                    [0, 1, 0],
+                    [0, 0, 1]
+                ]
             },
             {
-                id : "2",
-                minerName : "voldemort",
+                id : "model_2",
                 hash : "bcde",
-                transactions: ["4"]
+                transactions: ["demo_4"],
+                testData : [
+                    [0, 1, 0],
+                    [0, 1, 0],
+                    [0, 1, 0]
+                ]
             },
             {
                 id: "3",
-                minerName : "Snape",
                 hash: "cdef",
-                transactions: ["5", "6"]
+                transactions: ["demo_5", "demo_6"],
+                testData : [
+                    [0, 0, 1],
+                    [0, 1, 0],
+                    [1, 0, 0]
+                ]
             }
         ];
 
@@ -44,7 +56,7 @@ class ModelPropose extends Contract {
         return modelBinary && modelBinary.length > 0;
     }
 
-    async CreateModel(ctx, id, minerName, hash, transactions){
+    async CreateModel(ctx, id, hash, transactions, testData){
         /*
         * Creates a new model with given parameters.
         * */
@@ -55,9 +67,9 @@ class ModelPropose extends Contract {
 
         const model = {
             id : id,
-            minerName : minerName,
             hash : hash,
-            transactions : JSON.parse(transactions)
+            transactions : JSON.parse(transactions),
+            testData : JSON.parse(testData)
         }
 
         await ctx.stub.putState(model.id, Buffer.from(stringify(sortKeysRecursive(model))));
@@ -107,7 +119,9 @@ class ModelPropose extends Contract {
                 console.log(err);
                 record = strValue;
             }
-            allResults.push(record);
+            if (record.id.startsWith("model")) {
+                allResults.push(record);
+            }
             result = await iterator.next();
         }
         return JSON.stringify(allResults);

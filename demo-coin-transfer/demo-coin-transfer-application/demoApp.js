@@ -8,9 +8,9 @@ class DemoApp {
     * Demo application functions that interact with demo chaincode.
     * */
     constructor() {}
-    async initLedger(contract) {
+    async initTransactions(contract) {
         try {
-            await (await contract).submitTransaction('initLedger');
+            await (await contract).submitTransaction('InitTransactions');
             return "Demo ledger was successfully initialized.";
         } catch (error) {
             console.log(error);
@@ -29,9 +29,9 @@ class DemoApp {
         }
     }
 
-    async createWalletTrx(contract, id, walletId, name, amount) {
+    async createWalletTrx(contract, id, walletId, amount) {
         try {
-            await (await contract).submitTransaction("CreateWalletTrx", id, walletId, name, amount);
+            await (await contract).submitTransaction("CreateWalletTrx", id, walletId, amount);
             return "'create wallet' transaction was successfully created."
         } catch (error) {
             console.log(error);
@@ -39,9 +39,9 @@ class DemoApp {
         }
     }
 
-    async updateWalletTrx(contract, id, walletId, name, amount) {
+    async updateWalletTrx(contract, id, walletId, amount) {
         try {
-            await (await contract).submitTransaction("UpdateWalletTrx", id, walletId, name, amount);
+            await (await contract).submitTransaction("UpdateWalletTrx", id, walletId, amount);
             return "'update wallet' transaction was successfully created."
         } catch (error) {
             console.log(error);

@@ -37,11 +37,11 @@ const peerEndPoint = "localhost:7051";
 const peerHostAlias = "peer0.org1.example.com";
 
 // contract for each chaincode
-// const contractDemo = InitConnection("demo", "demoCC");
-// const contractMain = InitConnection("main", "mainCC");
-// const contractModel = InitConnection("model", "modelCC");
-// const contractTest = InitConnection("test", "testCC");
-// const contractPred = InitConnection("pred", "predCC");
+const contractDemo = InitConnection("demo", "demoCC");
+const contractMain = InitConnection("main", "mainCC");
+const contractModel = InitConnection("demo", "modelCC");
+const contractTest = InitConnection("test", "testCC");
+const contractPred = InitConnection("pred", "predCC");
 const contractVote = InitConnection("vote", "voteCC");
 
 async function newGrpcConnection() {
@@ -103,7 +103,7 @@ app.get('/', (req, res) => {
 * Demo application API
 * */
 app.post('/api/demo/ledger/', async (req, res) => {
-    const message = await demoApp.initLedger(contractDemo);
+    const message = await demoApp.initTransactions(contractDemo);
     res.send(message);
 });
 
@@ -113,12 +113,12 @@ app.get('/api/demo/transaction/', jsonParser, async (req, res) => {
 });
 
 app.post('/api/demo/transaction/create/', jsonParser, async (req, res) => {
-   const message = await demoApp.createWalletTrx(contractDemo, req.body.id, req.body.walletId, req.body.name, req.body.amount.toString());
+   const message = await demoApp.createWalletTrx(contractDemo, req.body.id, req.body.walletId, req.body.amount.toString());
    res.send(message);
 });
 
 app.post('/api/demo/transaction/update/', jsonParser, async (req, res) => {
-    const message = await demoApp.updateWalletTrx(contractDemo, req.body.id, req.body.walletId, req.body.name, req.body.amount.toString());
+    const message = await demoApp.updateWalletTrx(contractDemo, req.body.id, req.body.walletId, req.body.amount.toString());
     res.send(message);
 });
 
@@ -161,12 +161,12 @@ app.get('/api/main/wallet/', jsonParser, async (req, res) => {
 * Model application API
 * */
 app.post('/api/model/ledger/', async (req, res) => {
-    const message = await modelApp.initLedger(contractModel);
+    const message = await modelApp.initModels(contractModel);
     res.send(message);
 });
 
 app.post('/api/model/', jsonParser, async (req, res) => {
-    const message = await modelApp.createModel(contractModel, req.body.id, req.body.minerName, req.body.hash, JSON.stringify(req.body.transactions))
+    const message = await modelApp.createModel(contractModel, req.body.id, req.body.hash, JSON.stringify(req.body.transactions), JSON.stringify((req.body.testData)));
     res.send(message);
 });
 

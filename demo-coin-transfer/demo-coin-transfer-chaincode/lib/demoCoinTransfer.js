@@ -99,7 +99,7 @@ class DemoCoinTransfer extends  Contract {
             id : id,
             method : "put",
             walletId : walletId,
-            amount : parseFloat(JSON.parse(amount)),
+            amount : parseFloat(amount),
             assigned : null
         };
 
@@ -209,7 +209,7 @@ class DemoCoinTransfer extends  Contract {
             method : "transfer",
             senderId : senderId,
             receiverId : receiverId,
-            amount : amount,
+            amount : parseFloat(amount),
             assigned : null
         }
 
