@@ -11,6 +11,8 @@ const { TestApp } = require("../test-data-propose/test-data-propose-application/
 const testApp = new TestApp();
 const { PredApp } = require("../prediction-propose/prediction-propose-application/predApp");
 const predApp = new PredApp();
+const { VoteApp } = require("../vote-assign/vote-assign-application/voteApp");
+const voteApp = new VoteApp();
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -39,7 +41,8 @@ const peerHostAlias = "peer0.org1.example.com";
 // const contractMain = InitConnection("main", "mainCC");
 // const contractModel = InitConnection("model", "modelCC");
 // const contractTest = InitConnection("test", "testCC");
-const contractPred = InitConnection("pred", "predCC");
+// const contractPred = InitConnection("pred", "predCC");
+const contractVote = InitConnection("vote", "voteCC");
 
 async function newGrpcConnection() {
     const tlsRootCert = await fs.readFile(tlsCertPath);
@@ -241,6 +244,36 @@ app.post("/api/pred/", jsonParser, async (req, res) => {
 app.delete("/api/pred/", jsonParser, async (req, res) => {
    const message = await predApp.deletePrediction(contractPred, req.body.id);
    res.send(message)
+});
+
+
+/*
+* Vote application API
+* */
+
+app.post("/api/vote/ledger/", async (req, res) => {
+    const message = await voteApp.initLedger(contractVote);
+    res.send(message);
+});
+
+app.get("/api/votes/", async (req, res) => {
+    const votes = await voteApp.getAllVotes(contractVote);
+    res.send(votes);
+});
+
+app.get("/api/vote/", jsonParser, async (req, res) => {
+    const vote = await voteApp.readVote(contractVote, req.body.id);
+    res.send(vote);
+});
+
+app.post("/api/vote/", jsonParser, async (req, res) => {
+    const message = await voteApp.createVote(contractVote, req.body.id, req.body.minerName, JSON.stringify(req.body.votes));
+    res.send(message);
+});
+
+app.delete("/api/vote/", jsonParser, async (req, res) => {
+    const message = await voteApp.deleteVote(contractVote, req.body.id);
+    res.send(message);
 });
 
 app.listen(port, () => {
