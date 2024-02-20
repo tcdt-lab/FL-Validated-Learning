@@ -9,6 +9,7 @@ import random
 import hashlib
 
 class TimerCallback(tf.keras.callbacks.Callback):
+    # Checks whether the miner has time to train or not. if not it stops the training and sends the model to the ledger.
     def on_epoch_end(self, epoch, logs=None):
         current_time = time.time() / 60
         if current_time > miner.deadline:
@@ -23,6 +24,7 @@ class Miner:
         self.test_size = 5
 
     def get_transactions(self):
+        # Gets assigned transactions from the demo ledger
         res = requests.post("http://localhost:3000/api/demo/transactions/assign/",
                             json={
                                 "minerName": self.name,
@@ -36,9 +38,11 @@ class Miner:
         print(self.transactions)
     
     def get_global_model(self):
+        # Gets the global model
         self.model = tf.keras.models.load_model("../global model/global_model.h5")
     
     def get_data(self):
+        # Downloads the fashion mnist data and takes the part assigned to it as data.
         (X_train, y_train), (X_test, y_test) = tf.keras.datasets.fashion_mnist.load_data()
         k = int(self.name[-1]) - 1
         train_size = len(y_train) // self.total_miners
@@ -47,11 +51,19 @@ class Miner:
         self.X_test, self.y_test = X_test[k*test_size:(k + 1)*test_size], y_test[k*test_size:(k + 1)*test_size]
     
     def get_random_test(self):
+        # returns random indexes of test data for evaluating other miners
         self.test_indexes = random.sample(range(len(self.y_test)), self.test_size)
         return self.X_test[self.test_indexes]
 
 
     def train(self):
+        # Complete flow of the training step
+        # Getting Transactions
+        # Getting the global model
+        # Training the global model
+        # Creating a model propose block
+        # Sending the block to the demo ledger
+
         self.get_transactions()
         self.get_global_model()
 
@@ -86,6 +98,7 @@ app = Flask(__name__)
 
 @app.route("/transactions/ready/")
 def hello_world():
+    # Handles HTTP requests for starting the training step
     deadline = request.args.get('time')
     miner.deadline = (time.time() / 60) + int(deadline) - 0.5
     executer.submit(miner.train)

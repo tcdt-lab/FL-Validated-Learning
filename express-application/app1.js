@@ -254,6 +254,7 @@ app.delete("/api/vote/", jsonParser, async (req, res) => {
 * */
 
 app.post('/api/demo/start/', async (req, res) => {
+    // Starts the flow of the system by allowing transaction assignment and model proposal
     await demoApp.toggleAcceptingStatus(contractDemo);
     await axios.get("http://localhost:8000/transactions/ready/", {
         params : {
@@ -261,7 +262,7 @@ app.post('/api/demo/start/', async (req, res) => {
             time : 5
         }
     });
-    res.send("Miners are notified")
+    res.send("Miners are notified.")
 })
 
 app.listen(port, () => {
