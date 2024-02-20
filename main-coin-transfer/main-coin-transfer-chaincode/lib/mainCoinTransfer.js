@@ -2,18 +2,18 @@
 
 const stringify = require("json-stringify-deterministic");
 const sortKeysRecursive = require("sort-keys-recursive");
-const { Contract } = require("fabric-contract-api");
+const {Contract} = require("fabric-contract-api");
 
-class MainCoinTransfer extends  Contract {
+class MainCoinTransfer extends Contract {
     async InitWallets(ctx) {
         /*
         * Initializes a ledger with some predefined wallets.
         * */
 
-        for (let i = 1 ; i < 11 ; i++) {
+        for (let i = 1; i < 11; i++) {
             const wallet = {
-                id : `main_${i}`,
-                amount : 10.0
+                id: `main_${i}`,
+                amount: 10.0
             }
             await ctx.stub.putState(wallet.id, Buffer.from(stringify(sortKeysRecursive(wallet))));
         }
@@ -34,7 +34,7 @@ class MainCoinTransfer extends  Contract {
         * */
 
         const walletBytes = await ctx.stub.getState(id);
-        if (! walletBytes || walletBytes.length === 0) {
+        if (!walletBytes || walletBytes.length === 0) {
             throw Error(`No wallet exists with id ${id}.`);
         }
 
@@ -63,6 +63,46 @@ class MainCoinTransfer extends  Contract {
             result = await iterator.next();
         }
         return JSON.stringify(allResults);
+    }
+
+    async RunTrx(ctx, trx) {
+        switch (trx.method) {
+            case "put":
+                const wallet = {
+                    id : trx.walletId,
+                    amount : trx.amount
+                }
+                await ctx.stub.putState(wallet.id, Buffer.from(stringify(sortKeysRecursive(wallet))));
+                break;
+            case "delete":
+                await ctx.stub.deleteState(trx.walletId);
+                break;
+            case "transfer":
+                const senderWalletString = await this.ReadWallet(ctx, trx.senderId);
+                let senderWallet = JSON.parse(senderWalletString);
+                senderWallet.amount = senderWallet.amount - trx.amount;
+                const receiverWalletString = await this.ReadWallet(ctx, trx.receiverId);
+                let receiverWallet = JSON.parse(receiverWalletString);
+                receiverWallet.amount = receiverWallet.amount + trx.amount;
+                await ctx.stub.putState(senderWallet.id, Buffer.from(stringify(sortKeysRecursive(senderWallet))));
+                await ctx.stub.putState(receiverWallet.id, Buffer.from(stringify(sortKeysRecursive(receiverWallet))));
+                break;
+            default:
+                throw Error("Wrong trx method.");
+        }
+    }
+
+    async RunWinnerTransactions(ctx, winnersString) {
+        const winners = JSON.parse(winnersString);
+        for (const winner of winners) {
+            const transactionsBinary = await ctx.stub.invokeChaincode("demoCC",
+                ["GetTransactionsByAssignment", `miner_${winner.charAt(winner.length - 1)}`], "demo");
+            const transactionsString = transactionsBinary.payload.toString();
+            const transactions = JSON.parse(transactionsString);
+            for (const trx of transactions) {
+                await this.RunTrx(ctx, trx);
+            }
+        }
     }
 }
 

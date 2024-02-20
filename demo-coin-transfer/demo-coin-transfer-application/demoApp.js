@@ -108,6 +108,27 @@ class DemoApp {
             return error;
         }
     }
+
+    async getTransactionsByAssignment(contract, minerName) {
+        try {
+            const transactionsBinary = await (await contract).evaluateTransaction("GetTransactionsByAssignment", minerName);
+            const transactionsString = utf8Decoder.decode(transactionsBinary);
+            return JSON.parse(transactionsString);
+        } catch (error) {
+            console.log(error);
+            return error;
+        }
+    }
+
+    async deleteDemoTrx(contract, id) {
+        try {
+            await (await contract).submitTransaction("DeleteDemoTrx", id);
+            return "Demo transaction was successfully deleted."
+        } catch (error) {
+            console.log(error);
+            return error;
+        }
+    }
 }
 
 

@@ -50,6 +50,16 @@ class MainApp {
             return error;
         }
     }
+
+    async runWinnerTransactions(contract, winners) {
+        try {
+            await (await contract).submitTransaction("RunWinnerTransactions", winners);
+            return "Winner transactions were successfully ran."
+        } catch (error) {
+            console.log(error);
+            return error;
+        }
+    }
 }
 
 module.exports = {

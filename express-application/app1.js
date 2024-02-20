@@ -111,7 +111,8 @@ async function InitConnection(channelName, chaincodeName) {
 
 async function selectWinners() {
     const winners = await voteApp.selectWinners(contractVote, winnerCount.toString());
-    console.log(winners);
+    const message = await mainApp.runWinnerTransactions(contractMain, JSON.stringify(winners));
+    console.log(message)
 }
 
 async function gatherPredictions() {
@@ -189,6 +190,16 @@ app.post('/api/demo/transactions/assign/', jsonParser, async (req, res) => {
     res.send(transactions);
 });
 
+app.get('/api/demo/transactions/assign/', jsonParser, async (req, res) => {
+    const transactions = await demoApp.getTransactionsByAssignment(contractDemo, req.body.minerName);
+    res.send(transactions);
+});
+
+app.delete('/api/demo/transaction/', jsonParser, async (req, res) => {
+    const message = await demoApp.deleteDemoTrx(contractDemo, req.body.id);
+    res.send(message);
+})
+
 
 /*
 * Main application API
@@ -207,6 +218,11 @@ app.get('/api/main/wallet/', jsonParser, async (req, res) => {
     const wallet = await mainApp.readWallet(contractMain, req.body.id);
     res.send(wallet);
 });
+
+app.post('/api/main/run/', jsonParser, async (req, res) => {
+    const message = await mainApp.runWinnerTransactions(contractMain, JSON.stringify(req.body.winners));
+    res.send(message)
+})
 
 
 /*

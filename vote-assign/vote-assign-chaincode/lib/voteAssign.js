@@ -14,15 +14,27 @@ class VoteAssign extends Contract {
             {
                 id : "vote_1",
                 votes : [
-                    "model_1", "model_2"
+                    "model_2", "model_3", "model_4"
                 ]
             },
             {
                 id : "vote_2",
                 votes : [
-                    "model_1", "model_3"
+                    "model_1", "model_3", "model_4"
                 ]
-            }
+            },
+            {
+                id : "vote_3",
+                votes : [
+                    "model_1", "model_2", "model_4"
+                ]
+            },
+            {
+                id : "vote_4",
+                votes : [
+                    "model_1", "model_2", "model_3"
+                ]
+            },
         ];
 
         for (const vote of votes) {
