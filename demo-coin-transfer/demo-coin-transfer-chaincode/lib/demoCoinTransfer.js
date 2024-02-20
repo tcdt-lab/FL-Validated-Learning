@@ -47,6 +47,10 @@ class DemoCoinTransfer extends  Contract {
             {
                 id : "demoCount",
                 current : 4
+            },
+            {
+                id : "modelAcceptingInfo",
+                accepting : false
             }
         ];
 
@@ -232,7 +236,43 @@ class DemoCoinTransfer extends  Contract {
         await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
     }
 
+    async ToggleAcceptingStatus(ctx) {
+        /* 
+        * Toggles the accepting status at this moment
+        * */
+        const infoBytes = await ctx.stub.getState("modelAcceptingInfo");
+        const infoString = infoBytes.toString();
+        let info = JSON.parse(infoString);
+        info.accepting = !info.accepting;
+        await ctx.stub.putState(info.id, Buffer.from(stringify(sortKeysRecursive(info))));
+    }
+
+    async GetAcceptingStatus(ctx) {
+        /* 
+        * Returns the accepting status at this moment
+        * */
+        const infoBytes = await ctx.stub.getState("modelAcceptingInfo");
+        const infoString = infoBytes.toString();
+        const info = JSON.parse(infoString);
+        return info.accepting;
+    }
+
     async AssignTransactions(ctx, minerName, count) {
+        /*
+        * Assigns not-assigned transactions to miners.
+        * The 'status' is used for letting the miners know about the status of their request.
+        * */
+
+        const accepting = await this.GetAcceptingStatus(ctx);
+
+        if (!accepting) {
+            const res = {
+                status : "Failed",
+                message : "Sorry, we are not accepting assignment requests at the moment."
+            }
+            return JSON.stringify(res)
+        }
+
         const assigned = [];
         count = parseInt(count)
         const iterator = await ctx.stub.getStateByRange('', '');
@@ -253,12 +293,20 @@ class DemoCoinTransfer extends  Contract {
             result = await iterator.next();
         }
         if (assigned.length === 0) {
-            throw Error("Sorry, no unassigned transaction exists at the moment.");
+            const res = {
+                status : "Failed",
+                message : "Sorry, no unassigned transaction exists at the moment."
+            }
+            return JSON.stringify(res)
         }
         for (const trx of assigned) {
             await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
         }
-        return JSON.stringify(assigned);
+        const res = {
+            status : "Accepted",
+            data : assigned
+        }
+        return JSON.stringify(res);
     }
 }
 

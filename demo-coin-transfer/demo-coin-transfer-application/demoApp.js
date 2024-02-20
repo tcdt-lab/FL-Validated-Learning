@@ -90,6 +90,16 @@ class DemoApp {
             return error;
         }
     }
+
+    async toggleAcceptingStatus(contract) {
+        try {
+            await (await contract).submitTransaction("ToggleAcceptingStatus");
+            return "Transaction assignment and model proposal accepting status was successfully toggled."
+        } catch (error) {
+            console.log(error);
+            return error;
+        }
+    }
 }
 
 

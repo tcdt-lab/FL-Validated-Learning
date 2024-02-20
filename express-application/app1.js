@@ -245,6 +245,16 @@ app.delete("/api/vote/", jsonParser, async (req, res) => {
     res.send(message);
 });
 
+
+/* 
+* Application flow
+* */
+
+app.post('/api/demo/start/', async (req, res) => {
+    const message = await demoApp.toggleAcceptingStatus(contractDemo);
+    res.send(message);
+})
+
 app.listen(port, () => {
     console.log(`Server is listening on localhost:${port}.`);
 });
