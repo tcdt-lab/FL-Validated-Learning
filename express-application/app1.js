@@ -41,6 +41,9 @@ const contractModel = InitConnection("demo", "modelCC");
 const contractPred = InitConnection("demo", "predCC");
 const contractVote = InitConnection("demo", "voteCC");
 
+// Communicating with miners
+const axios = require("axios");
+
 async function newGrpcConnection() {
     const tlsRootCert = await fs.readFile(tlsCertPath);
     const tlsCredentials = grpc.credentials.createSsl(tlsRootCert);
@@ -251,8 +254,14 @@ app.delete("/api/vote/", jsonParser, async (req, res) => {
 * */
 
 app.post('/api/demo/start/', async (req, res) => {
-    const message = await demoApp.toggleAcceptingStatus(contractDemo);
-    res.send(message);
+    await demoApp.toggleAcceptingStatus(contractDemo);
+    await axios.get("http://localhost:8000/transactions/ready/", {
+        params : {
+            status : "ready",
+            time : 5
+        }
+    });
+    res.send("Miners are notified")
 })
 
 app.listen(port, () => {
