@@ -6,12 +6,12 @@ const utf8Decoder = new TextDecoder();
 class PredApp {
     constructor() {}
 
-    async initLedger(contract) {
+    async initPredictions(contract) {
         /*
         * Invokes the init ledger function of chaincode modelCC.
         * */
         try {
-            await (await contract).submitTransaction("InitLedger");
+            await (await contract).submitTransaction("InitPredictions");
             return "Ledger was successfully initialized."
         } catch (error) {
             console.log(error);
@@ -33,12 +33,12 @@ class PredApp {
         }
     }
 
-    async createPrediction(contract, id, minerName, predictions) {
+    async createPrediction(contract, id, predictions) {
         /*
         * Invokes the create prediction function of chaincode modelCC.
         * */
         try {
-            await (await contract).submitTransaction("CreatePrediction", id, minerName, predictions);
+            await (await contract).submitTransaction("CreatePrediction", id, predictions);
             return "The prediction was successfully created."
         } catch (error) {
             console.log(error);

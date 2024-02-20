@@ -40,8 +40,7 @@ const peerHostAlias = "peer0.org1.example.com";
 const contractDemo = InitConnection("demo", "demoCC");
 const contractMain = InitConnection("main", "mainCC");
 const contractModel = InitConnection("demo", "modelCC");
-const contractTest = InitConnection("test", "testCC");
-const contractPred = InitConnection("pred", "predCC");
+const contractPred = InitConnection("demo", "predCC");
 const contractVote = InitConnection("vote", "voteCC");
 
 async function newGrpcConnection() {
@@ -185,44 +184,11 @@ app.get('/api/models/', async (req, res) => {
     res.send(models);
 });
 
-
-/*
-* Test application API
-* */
-app.post("/api/test/ledger/", async (req, res) => {
-   const message = await testApp.initLedger(contractTest);
-   res.send(message);
-});
-app.get('/api/tests/', async (req, res) => {
-    const tests = await testApp.getAllTests(contractTest);
-    res.send(tests);
-});
-
-app.get('/api/test/', jsonParser, async (req, res) => {
-    const test = await testApp.readTest(contractTest, req.body.id);
-    res.send(test);
-})
-
-app.post('/api/test/', jsonParser, async (req, res) => {
-   const message = await testApp.createTest(contractTest, req.body.id, req.body.minerName, JSON.stringify(req.body.data));
-   res.send(message);
-});
-
-app.put('/api/test/', jsonParser, async (req, res) => {
-   const message = await testApp.updateTest(contractTest, req.body.id, req.body.minerName, JSON.stringify(req.body.data));
-   res.send(message)
-});
-
-app.delete('/api/test/', jsonParser, async (req, res) => {
-    const message = await testApp.deleteTest(contractTest, req.body.id);
-    res.send(message);
-});
-
 /*
 * Pred application API
 * */
 app.post("/api/pred/ledger/", async (req, res) => {
-    const message = await predApp.initLedger(contractPred);
+    const message = await predApp.initPredictions(contractPred);
     res.send(message);
 });
 
@@ -237,7 +203,7 @@ app.get("/api/pred/", jsonParser, async (req, res) => {
 });
 
 app.post("/api/pred/", jsonParser, async (req, res) => {
-   const message = await predApp.createPrediction(contractPred, req.body.id, req.body.minerName, JSON.stringify(req.body.predictions));
+   const message = await predApp.createPrediction(contractPred, req.body.id, JSON.stringify(req.body.predictions));
    res.send(message);
 });
 

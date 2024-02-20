@@ -6,15 +6,13 @@ const { Contract } = require("fabric-contract-api");
 
 
 class PredPropose extends Contract {
-
-    async InitLedger(ctx) {
+    async InitPredictions(ctx) {
         /*
         * Initializes the ledger with some predefined predictions.
         * */
         const predictions = [
             {
-                id : "1",
-                minerName : "Amirreza",
+                id : "pred_1",
                 predictions : [
                     {
                         testId : "2",
@@ -23,8 +21,7 @@ class PredPropose extends Contract {
                 ]
             },
             {
-                id : "2",
-                minerName : "Hasti",
+                id : "pred_2",
                 predictions : [
                     {
                         testId : "1",
@@ -47,7 +44,7 @@ class PredPropose extends Contract {
         return predBinary && predBinary.length > 0;
     }
 
-    async CreatePrediction(ctx, id, minerName, predictions) {
+    async CreatePrediction(ctx, id, predictions) {
         /*
         * Creates a prediction based on given arguments.
         * */
@@ -57,7 +54,6 @@ class PredPropose extends Contract {
         }
         const pred = {
             id : id,
-            minerName : minerName,
             predictions : JSON.parse(predictions)
         }
 
@@ -107,7 +103,9 @@ class PredPropose extends Contract {
                 console.log(err);
                 record = strValue;
             }
-            allResults.push(record);
+            if (record.id.startsWith("pred")) {
+                allResults.push(record);
+            }
             result = await iterator.next();
         }
         return JSON.stringify(allResults);
