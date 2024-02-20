@@ -26,6 +26,56 @@ class TestPropose extends  Contract {
         }
     }
 
+    async TestExists(ctx, id) {
+        const testBinary = await ctx.stub.getState(id);
+        return testBinary && testBinary.length > 0;
+    }
+
+    async CreateTest(ctx, id, minerName, data) {
+        const testExists = await this.TestExists(ctx, id);
+        if (testExists) {
+            throw Error(`A test data already exists with id ${id}.`);
+        }
+        const test = {
+            id : id,
+            minerName : minerName,
+            data : JSON.parse(data)
+        }
+        await ctx.stub.putState(test.id, Buffer.from(stringify(sortKeysRecursive(test))));
+
+        return test.toString();
+    }
+
+    async UpdateTest(ctx, id, minerName, data) {
+        const testExists = await this.TestExists(ctx, id);
+        if (!testExists) {
+            throw Error(`No test data exists with id ${id}.`);
+        }
+        const test = {
+            id : id,
+            minerName : minerName,
+            data : JSON.parse(data)
+        }
+
+        await ctx.stub.putState(test.id, Buffer.from(stringify(sortKeysRecursive(test))));
+    }
+
+    async ReadTest(ctx, id) {
+        const testBinary = await ctx.stub.getState(id);
+        if (!testBinary || testBinary.length === 0) {
+            throw Error(`No test data exists with id ${id}.`);
+        }
+        return testBinary.toString();
+    }
+
+    async DeleteTest(ctx, id) {
+        const testExists = await this.TestExists(ctx, id);
+        if (!testExists) {
+            throw Error(`No test data exists with id ${id}.`);
+        }
+        await ctx.stub.deleteState(id);
+    }
+
     async GetAllTests(ctx) {
         /*
         * Returns all the existing test data records.
