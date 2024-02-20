@@ -207,7 +207,8 @@ app.put('/api/test/', jsonParser, async (req, res) => {
 app.delete('/api/test/', jsonParser, async (req, res) => {
     const message = await testApp.deleteTest(contractTest, req.body.id);
     res.send(message);
-})
+});
+
 app.listen(port, () => {
     console.log("Server is listening on localhost:3000.");
 });
