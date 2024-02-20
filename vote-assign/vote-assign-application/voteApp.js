@@ -83,6 +83,16 @@ class VoteApp {
             return error;
         }
     }
+
+    async deleteAllVotes(contract) {
+        try {
+            await (await contract).submitTransaction("DeleteAllVotes");
+            return "All votes were successfully deleted."
+        } catch(error) {
+            console.log(error)
+            return error;
+        }
+    }
 }
 
 module.exports = {

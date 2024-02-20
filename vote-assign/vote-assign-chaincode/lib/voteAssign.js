@@ -135,6 +135,14 @@ class VoteAssign extends Contract {
         const winners = Object.keys(board);
         return JSON.stringify(winners);
     }
+
+    async DeleteAllVotes(ctx) {
+        const votesString = await this.GetAllVotes(ctx);
+        const votes = JSON.parse(votesString);
+        for (const vote of votes){
+            await ctx.stub.deleteState(vote.id);
+        }
+    }
 }
 
 module.exports = VoteAssign;

@@ -134,6 +134,14 @@ class PredPropose extends Contract {
         }
         return JSON.stringify(specificPrediction);
     }
+
+    async DeleteAllPredictions(ctx) {
+        const predictionsString = await this.GetAllPredictions(ctx);
+        const predictions = JSON.parse(predictionsString);
+        for (const pred of predictions){
+            await ctx.stub.deleteState(pred.id);
+        }
+    }
 }
 
 module.exports = PredPropose;

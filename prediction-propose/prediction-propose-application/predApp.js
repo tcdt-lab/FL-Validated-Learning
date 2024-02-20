@@ -97,6 +97,16 @@ class PredApp {
             return error;
         }
     }
+
+    async deleteAllPredictions(contract) {
+        try {
+            await (await contract).submitTransaction("DeleteAllPredictions");
+            return "All predictions were successfully deleted."
+        } catch(error) {
+            console.log(error)
+            return error;
+        }
+    }
 }
 
 module.exports = {

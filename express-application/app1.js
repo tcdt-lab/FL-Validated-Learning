@@ -109,10 +109,18 @@ async function InitConnection(channelName, chaincodeName) {
     return network.getContract(chaincodeName);
 }
 
+async function refreshStates() {
+    await modelApp.deleteAllModels(contractModel);
+    await predApp.deleteAllPredictions(contractPred);
+    await voteApp.deleteAllVotes(contractVote);
+    console.log("All models, predictions, and votes are deleted.");
+}
+
 async function selectWinners() {
     const winners = await voteApp.selectWinners(contractVote, winnerCount.toString());
     const message = await mainApp.runWinnerTransactions(contractMain, JSON.stringify(winners));
-    console.log(message)
+    console.log(message);
+    await refreshStates();
 }
 
 async function gatherPredictions() {

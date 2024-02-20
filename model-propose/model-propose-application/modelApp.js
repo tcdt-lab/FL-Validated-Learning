@@ -46,12 +46,12 @@ class ModelApp {
         }
     }
 
-    async deleteModel(contact, id) {
+    async deleteModel(contract, id) {
         /*
         * Invokes the delete model function of chaincode modelCC.
         * */
         try {
-            await (await contact).submitTransaction("DeleteModel", id);
+            await (await contract).submitTransaction("DeleteModel", id);
             return "Model was successfully deleted."
         } catch(error) {
             console.log(error)
@@ -95,6 +95,15 @@ class ModelApp {
         }
     }
 
+    async deleteAllModels(contract) {
+        try {
+            await (await contract).submitTransaction("DeleteAllModels");
+            return "All models were successfully deleted."
+        } catch(error) {
+            console.log(error)
+            return error;
+        }
+    }
 }
 
 module.exports = {

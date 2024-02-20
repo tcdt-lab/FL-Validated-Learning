@@ -150,6 +150,14 @@ class ModelPropose extends Contract {
 
         return JSON.stringify(testRecordsBlock);
     }
+
+    async DeleteAllModels(ctx) {
+        const modelsString = await this.GetAllModels(ctx);
+        const models = JSON.parse(modelsString);
+        for (const model of models){
+            await ctx.stub.deleteState(model.id);
+        }
+    }
 }
 
 module.exports = ModelPropose
