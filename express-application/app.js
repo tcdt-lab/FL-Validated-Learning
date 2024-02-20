@@ -7,8 +7,6 @@ const { MainApp } = require("../main-coin-transfer/main-coin-transfer-applicatio
 const mainApp = new MainApp();
 const { ModelApp } = require("../model-propose/model-propose-application/modelApp");
 const modelApp = new ModelApp();
-const { TestApp } = require("../test-data-propose/test-data-propose-application/testApp");
-const testApp = new TestApp();
 const { PredApp } = require("../prediction-propose/prediction-propose-application/predApp");
 const predApp = new PredApp();
 const { VoteApp } = require("../vote-assign/vote-assign-application/voteApp");
@@ -41,7 +39,7 @@ const contractDemo = InitConnection("demo", "demoCC");
 const contractMain = InitConnection("main", "mainCC");
 const contractModel = InitConnection("demo", "modelCC");
 const contractPred = InitConnection("demo", "predCC");
-const contractVote = InitConnection("vote", "voteCC");
+const contractVote = InitConnection("demo", "voteCC");
 
 async function newGrpcConnection() {
     const tlsRootCert = await fs.readFile(tlsCertPath);
@@ -233,7 +231,7 @@ app.get("/api/vote/", jsonParser, async (req, res) => {
 });
 
 app.post("/api/vote/", jsonParser, async (req, res) => {
-    const message = await voteApp.createVote(contractVote, req.body.id, req.body.minerName, JSON.stringify(req.body.votes));
+    const message = await voteApp.createVote(contractVote, req.body.id, JSON.stringify(req.body.votes));
     res.send(message);
 });
 

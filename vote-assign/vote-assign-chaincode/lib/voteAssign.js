@@ -6,23 +6,21 @@ const { Contract } = require("fabric-contract-api");
 
 class VoteAssign extends Contract {
 
-    async InitLedger(ctx) {
+    async InitVotes(ctx) {
         /*
         * Initializes the ledger with some predefined vote blocks
         * */
         const votes = [
             {
-                id : "1",
-                minerName : "Amirreza",
+                id : "vote_1",
                 votes : [
-                    "Hasti", "Negin"
+                    "model_1", "model_2"
                 ]
             },
             {
-                id : "2",
-                minerName: "Hasti",
+                id : "vote_2",
                 votes : [
-                    "Amirreza", "Negin"
+                    "model_1", "model_3"
                 ]
             }
         ];
@@ -40,7 +38,7 @@ class VoteAssign extends Contract {
         return voteBinary && voteBinary.length > 0;
     }
 
-    async CreateVote(ctx, id, minerName, votes) {
+    async CreateVote(ctx, id, votes) {
         /*
         * Creates a vote block with the given args.
         * */
@@ -51,7 +49,6 @@ class VoteAssign extends Contract {
 
         const vote = {
             id : id,
-            minerName : minerName,
             votes : JSON.parse(votes)
         }
 
@@ -99,7 +96,9 @@ class VoteAssign extends Contract {
                 console.log(err);
                 record = strValue;
             }
-            allResults.push(record);
+            if (record.id.startsWith("vote")) {
+                allResults.push(record);
+            }
             result = await iterator.next();
         }
         return JSON.stringify(allResults);

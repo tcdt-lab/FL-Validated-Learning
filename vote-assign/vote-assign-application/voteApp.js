@@ -6,12 +6,12 @@ const utf8decoder = new TextDecoder();
 class VoteApp {
     constructor() {}
 
-    async initLedger(contract) {
+    async initVotes(contract) {
         /*
         * Invokes the init ledger function of the chaincode.
         * */
         try {
-            await (await contract).submitTransaction("InitLedger");
+            await (await contract).submitTransaction("InitVotes");
             return "Ledger was successfully initialized.";
         } catch(error) {
             console.log(error);
@@ -47,12 +47,12 @@ class VoteApp {
         }
     }
 
-    async createVote(contract, id, minerName, votes) {
+    async createVote(contract, id, votes) {
         /*
         * Invokes the create vote function of the chaincode.
         * */
         try {
-            await (await contract).submitTransaction("CreateVote", id, minerName, votes);
+            await (await contract).submitTransaction("CreateVote", id, votes);
             return "The vote block was successfully created.";
         } catch(error) {
             console.log(error);
