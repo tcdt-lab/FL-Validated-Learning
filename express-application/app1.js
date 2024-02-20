@@ -110,22 +110,22 @@ app.get('/api/demo/transaction/', jsonParser, async (req, res) => {
 });
 
 app.post('/api/demo/transaction/create/', jsonParser, async (req, res) => {
-   const message = await demoApp.createWalletTrx(contractDemo, req.body.id, req.body.walletId, req.body.amount.toString());
+   const message = await demoApp.createWalletTrx(contractDemo, req.body.walletId, req.body.amount.toString());
    res.send(message);
 });
 
 app.post('/api/demo/transaction/update/', jsonParser, async (req, res) => {
-    const message = await demoApp.updateWalletTrx(contractDemo, req.body.id, req.body.walletId, req.body.amount.toString());
+    const message = await demoApp.updateWalletTrx(contractDemo, req.body.walletId, req.body.amount.toString());
     res.send(message);
 });
 
 app.post('/api/demo/transaction/delete/', jsonParser, async (req, res) => {
-    const message = await demoApp.deleteWalletTrx(contractDemo, req.body.id, req.body.walletId);
+    const message = await demoApp.deleteWalletTrx(contractDemo, req.body.walletId);
     res.send(message);
 });
 
 app.post('/api/demo/transaction/transfer/', jsonParser, async (req, res) => {
-    const message = await demoApp.transferCoinsTrx(contractDemo, req.body.id, req.body.senderId, req.body.receiverId, req.body.amount.toString());
+    const message = await demoApp.transferCoinsTrx(contractDemo, req.body.senderId, req.body.receiverId, req.body.amount.toString());
     res.send(message);
 })
 
@@ -143,6 +143,11 @@ app.post('/api/demo/transactions/assign/', jsonParser, async (req, res) => {
 /*
 * Main application API
 * */
+app.post('/api/main/ledger/', async (req, res) => {
+    const message = await mainApp.initWallets(contractMain);
+    res.send(message);
+});
+
 app.get('/api/main/wallets/', jsonParser, async (req, res) => {
     const wallets = await mainApp.getAllWallets(contractMain);
     res.send(wallets);
@@ -241,5 +246,5 @@ app.delete("/api/vote/", jsonParser, async (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log("Server is listening on localhost:3000.");
+    console.log(`Server is listening on localhost:${port}.`);
 });

@@ -5,6 +5,9 @@ const sortKeysRecursive = require("sort-keys-recursive");
 const { Contract } = require("fabric-contract-api");
 
 class DemoCoinTransfer extends  Contract {
+
+    
+    
     async InitTransactions(ctx) {
         /*
         * Initializes a ledger with some predefined transactions.
@@ -19,28 +22,31 @@ class DemoCoinTransfer extends  Contract {
         * assigned : which miner has been assigned with this transaction [String]
         * (This helps us uniquely assign each transaction to one miner only)
         * */
-
         const transactions = [
             {
                 id : "demo_1",
                 method : "put",
-                walletId : "4",
-                amount : 1.0,
+                walletId : "main_11",
+                amount : 10.0,
                 assigned : null,
             },
             {
                 id: "demo_2",
                 method : "put",
-                walletId : "5",
-                amount : 2.0,
+                walletId : "main_12",
+                amount : 10.0,
                 assigned : null,
             },
             {
                 id: "demo_3",
                 method : "put",
-                walletId : "6",
-                amount : 3.0,
+                walletId : "main_13",
+                amount : 10.0,
                 assigned : null,
+            },
+            {
+                id : "demoCount",
+                current : 4
             }
         ];
 
@@ -58,13 +64,28 @@ class DemoCoinTransfer extends  Contract {
         return JSON.parse(chaincodeResponse.payload.toString());
     }
 
-    async DemoTrxExists(ctx, id){
+    async GetCurrentDemoId(ctx){
         /*
-        * Checks if a transaction exists on the ledger.
+        * Gets the current transaction ID.
         * */
 
-        const trx = await ctx.stub.getState(id);
-        return trx && trx.length > 0;
+        const countBinary = await ctx.stub.getState("demoCount");
+        const countString = countBinary.toString();
+        const countBlock = JSON.parse(countString);
+        return "demo_" + countBlock.current.toString();
+    }
+
+    async UpdateCurrentDemoId(ctx) {
+        /*
+        * Updates the current transaction ID.
+        * */
+
+        const countBinary = await ctx.stub.getState("demoCount");
+        const countString = countBinary.toString();
+        let countBlock = JSON.parse(countString);
+        
+        countBlock.current = countBlock.current + 1;
+        await ctx.stub.putState(countBlock.id, Buffer.from(stringify(sortKeysRecursive(countBlock))));
     }
 
     async ReadTrx(ctx, id) {
@@ -80,21 +101,17 @@ class DemoCoinTransfer extends  Contract {
         return TrxBytes.toString();
     }
     //
-    async CreateWalletTrx(ctx, id, walletId, amount) {
+    async CreateWalletTrx(ctx, walletId, amount) {
         /*
         * Validates and creates a "create wallet" transaction based on the inputs it receives.
         * */
+        const id = await this.GetCurrentDemoId(ctx)
 
         const walletExists = await this.MainWalletExists(ctx, walletId);
         if (walletExists) {
             throw Error(`A wallet already exists with id ${walletId}.`);
         }
 
-        const trxExists = await this.DemoTrxExists(ctx, id);
-        if (trxExists) {
-            throw Error(`A transaction already exists with id ${id}.`);
-        }
-
         const trx = {
             id : id,
             method : "put",
@@ -103,22 +120,21 @@ class DemoCoinTransfer extends  Contract {
             assigned : null
         };
 
+        await this.UpdateCurrentDemoId(ctx);
+
         await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
     }
     //
-    async UpdateWalletTrx(ctx, id, walletId, amount) {
+    async UpdateWalletTrx(ctx, walletId, amount) {
         /*
         * Validates and creates "update wallet" transaction for an already existing wallet based on the inputs it receives.
         * */
 
-        const walletExists = this.MainWalletExists(ctx, id);
+        const id = await this.GetCurrentDemoId(ctx);
+
+        const walletExists = this.MainWalletExists(ctx, walletId);
         if (!walletExists) {
             throw Error(`No wallet exists with id ${walletId}.`);
-        }
-
-        const trxExists = await this.DemoTrxExists(ctx, id);
-        if (trxExists) {
-            throw Error(`A transaction already exists with id ${id}.`);
         }
 
         const trx = {
@@ -129,22 +145,21 @@ class DemoCoinTransfer extends  Contract {
             assigned : null
         };
 
+        await this.UpdateCurrentDemoId(ctx);
+
         await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
     }
     //
-    async DeleteWalletTrx(ctx, id, walletId) {
+    async DeleteWalletTrx(ctx, walletId) {
         /*
         * Validates and creates a "delete wallet" transaction using an already existing wallet's id.
         * */
 
-        const walletExists = this.MainWalletExists(ctx, id);
+        const id = await this.GetCurrentDemoId(ctx);
+
+        const walletExists = this.MainWalletExists(ctx, walletId);
         if (!walletExists) {
             throw Error(`No wallet exists with id ${id}`);
-        }
-
-        const trxExists = await this.DemoTrxExists(ctx, id);
-        if (trxExists) {
-            throw Error(`A transaction already exists with id ${id}.`);
         }
 
         const trx = {
@@ -153,6 +168,8 @@ class DemoCoinTransfer extends  Contract {
             walletId : walletId,
             assigned : null
         }
+
+        await this.UpdateCurrentDemoId(ctx)
 
         await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
     }
@@ -183,10 +200,12 @@ class DemoCoinTransfer extends  Contract {
         return JSON.stringify(allResults);
     }
 
-    async TransferCoinsTrx(ctx, id, senderId, receiverId, amount) {
+    async TransferCoinsTrx(ctx, senderId, receiverId, amount) {
         /*
         * Validates and creates a "transfer coins" transaction with wallet ids of sender and receiver.
         */
+
+        const id = await this.GetCurrentDemoId(ctx)
 
         const senderWalletResponse = await ctx.stub.invokeChaincode("mainCC", ["ReadWallet", senderId], "main");
         const walletExists = await this.MainWalletExists(ctx, receiverId);
@@ -199,11 +218,6 @@ class DemoCoinTransfer extends  Contract {
             throw Error("The sender wallet does not have enough coins for this transaction.");
         }
 
-        const trxExists = await this.DemoTrxExists(ctx, id);
-        if (trxExists) {
-            throw Error(`A transaction already exists with id ${id}.`);
-        }
-
         const trx = {
             id : id,
             method : "transfer",
@@ -212,6 +226,8 @@ class DemoCoinTransfer extends  Contract {
             amount : parseFloat(amount),
             assigned : null
         }
+
+        await this.UpdateCurrentDemoId(ctx);
 
         await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
     }

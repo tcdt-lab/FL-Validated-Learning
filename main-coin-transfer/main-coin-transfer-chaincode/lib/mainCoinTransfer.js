@@ -10,22 +10,11 @@ class MainCoinTransfer extends  Contract {
         * Initializes a ledger with some predefined wallets.
         * */
 
-        const wallets = [
-            {
-                id : "main_1",
-                amount : 1.0,
-            },
-            {
-                id : "main_2",
-                amount : 2.0,
-            },
-            {
-                id : "main_3",
-                amount : 3.0,
+        for (let i = 1 ; i < 11 ; i++) {
+            const wallet = {
+                id : `main_${i}`,
+                amount : 10.0
             }
-        ];
-
-        for (const wallet of wallets) {
             await ctx.stub.putState(wallet.id, Buffer.from(stringify(sortKeysRecursive(wallet))));
         }
     }

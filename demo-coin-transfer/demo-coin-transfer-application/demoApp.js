@@ -29,9 +29,9 @@ class DemoApp {
         }
     }
 
-    async createWalletTrx(contract, id, walletId, amount) {
+    async createWalletTrx(contract, walletId, amount) {
         try {
-            await (await contract).submitTransaction("CreateWalletTrx", id, walletId, amount);
+            await (await contract).submitTransaction("CreateWalletTrx", walletId, amount);
             return "'create wallet' transaction was successfully created."
         } catch (error) {
             console.log(error);
@@ -39,9 +39,9 @@ class DemoApp {
         }
     }
 
-    async updateWalletTrx(contract, id, walletId, amount) {
+    async updateWalletTrx(contract, walletId, amount) {
         try {
-            await (await contract).submitTransaction("UpdateWalletTrx", id, walletId, amount);
+            await (await contract).submitTransaction("UpdateWalletTrx", walletId, amount);
             return "'update wallet' transaction was successfully created."
         } catch (error) {
             console.log(error);
@@ -49,9 +49,9 @@ class DemoApp {
         }
     }
 
-    async deleteWalletTrx(contract, id, walletId) {
+    async deleteWalletTrx(contract, walletId) {
         try {
-            await (await contract).submitTransaction("DeleteWalletTrx", id, walletId);
+            await (await contract).submitTransaction("DeleteWalletTrx", walletId);
             return "'delete wallet' transaction was successfully created."
         } catch (error) {
             console.log(error);
@@ -70,9 +70,9 @@ class DemoApp {
         }
     }
 
-    async transferCoinsTrx(contract, id, senderId, receiverId, amount) {
+    async transferCoinsTrx(contract, senderId, receiverId, amount) {
         try {
-            await (await contract).submitTransaction("TransferCoinsTrx", id, senderId, receiverId, amount);
+            await (await contract).submitTransaction("TransferCoinsTrx", senderId, receiverId, amount);
             return "'transfer' transaction was successfully created."
         } catch (error) {
             console.log(error);
