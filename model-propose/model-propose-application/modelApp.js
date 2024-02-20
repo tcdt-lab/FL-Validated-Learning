@@ -19,12 +19,12 @@ class ModelApp {
         }
     }
 
-    async createModel(contract, id, hash, transactions) {
+    async createModel(contract, id, minerName, hash, transactions) {
         /*
         * Invokes the create model function of chaincode modelCC.
         * */
         try {
-            await (await contract).submitTransaction("CreateModel", id, hash, transactions);
+            await (await contract).submitTransaction("CreateModel", id, minerName, hash, transactions);
             return "Model was successfully created.";
         } catch (error) {
             console.log(error);

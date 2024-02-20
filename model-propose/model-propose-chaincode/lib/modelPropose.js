@@ -13,16 +13,19 @@ class ModelPropose extends Contract {
         const models = [
             {
                 id : "1",
+                minerName : "harry",
                 hash : "abcd",
                 transactions : ["1", "2", "3"]
             },
             {
                 id : "2",
+                minerName : "voldemort",
                 hash : "bcde",
                 transactions: ["4"]
             },
             {
                 id: "3",
+                minerName : "Snape",
                 hash: "cdef",
                 transactions: ["5", "6"]
             }
@@ -41,7 +44,7 @@ class ModelPropose extends Contract {
         return modelBinary && modelBinary.length > 0;
     }
 
-    async CreateModel(ctx, id, hash, transactions){
+    async CreateModel(ctx, id, minerName, hash, transactions){
         /*
         * Creates a new model with given parameters.
         * */
@@ -52,6 +55,7 @@ class ModelPropose extends Contract {
 
         const model = {
             id : id,
+            minerName : minerName,
             hash : hash,
             transactions : JSON.parse(transactions)
         }
