@@ -16,7 +16,7 @@ class DemoCoinTransfer extends  Contract {
         * (Since we are validating transactions on the demo chaincode, we only submit them on the main chaincode.)
         * walletID : which wallet(s) is this transaction concerned about. [String]
         * amount : transaction amount [Float]
-        * assigned : whether this transaction has been assigned to a miner [Boolean]
+        * assigned : which miner has been assigned with this transaction [String]
         * (This helps us uniquely assign each transaction to one miner only)
         * */
 
@@ -27,7 +27,7 @@ class DemoCoinTransfer extends  Contract {
                 walletId : "4",
                 name : "Harry",
                 amount : 1.0,
-                assigned : 0,
+                assigned : NaN,
             },
             {
                 id: "2",
@@ -35,7 +35,7 @@ class DemoCoinTransfer extends  Contract {
                 walletId : "5",
                 name : "Ron",
                 amount : 2.0,
-                assigned : 0,
+                assigned : NaN,
             },
             {
                 id: "3",
@@ -43,7 +43,7 @@ class DemoCoinTransfer extends  Contract {
                 walletId : "6",
                 name : "Hermione",
                 amount : 3.0,
-                assigned : 0,
+                assigned : NaN,
             }
         ];
 
@@ -104,7 +104,7 @@ class DemoCoinTransfer extends  Contract {
             walletId : walletId,
             name : name,
             amount : parseFloat(JSON.parse(amount)),
-            assigned : 0
+            assigned : NaN
         };
 
         await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
@@ -131,7 +131,7 @@ class DemoCoinTransfer extends  Contract {
             name : name,
             walletId : walletId,
             amount : parseFloat(JSON.parse(amount)),
-            assigned : 0
+            assigned : NaN
         };
 
         await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
@@ -156,7 +156,7 @@ class DemoCoinTransfer extends  Contract {
             id : id,
             method : "delete",
             walletId : walletId,
-            assigned : 0
+            assigned : NaN
         }
 
         await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
@@ -213,7 +213,7 @@ class DemoCoinTransfer extends  Contract {
             senderId : senderId,
             receiverId : receiverId,
             amount : amount,
-            assigned : 0
+            assigned : NaN
         }
 
         await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
