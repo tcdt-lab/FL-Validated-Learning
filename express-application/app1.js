@@ -34,6 +34,13 @@ const tlsCertPath = path.resolve(cryptoPath, 'peers', 'peer0.org1.example.com', 
 const peerEndPoint = "localhost:7051";
 const peerHostAlias = "peer0.org1.example.com";
 
+// deadlines for each step
+const modelProposeDeadline = 5;
+const predProposeDeadline = 0.5;
+
+// miners ports
+const minersPorts = [8000, 8001]
+
 // contract for each chaincode
 const contractDemo = InitConnection("demo", "demoCC");
 const contractMain = InitConnection("main", "mainCC");
@@ -43,6 +50,10 @@ const contractVote = InitConnection("demo", "voteCC");
 
 // Communicating with miners
 const axios = require("axios");
+
+// Lock for preventing PHANTOM error
+const { Semaphore } = require('async-mutex');
+const semaphore = new Semaphore(1);
 
 async function newGrpcConnection() {
     const tlsRootCert = await fs.readFile(tlsCertPath);
@@ -95,6 +106,21 @@ async function InitConnection(channelName, chaincodeName) {
     return network.getContract(chaincodeName);
 }
 
+async function gatherTestData() {
+    await demoApp.toggleAcceptingStatus(contractDemo);
+    // TODO: toggle predApp accepting status
+    await modelApp.gatherAllTestRecords(contractModel);
+    for (const port in minersPorts) {
+        await axios.get(`http://localhost:${port}/tests/ready/`, {
+        params : {
+            status : "ready",
+        }
+    });
+    }
+    console.log("Miners are notified to predict test data records.");
+    // TODO: setTimeout() for prediction
+}
+
 app.get('/', (req, res) => {
     res.send("Hello World! from demo.");
 });
@@ -138,8 +164,11 @@ app.get('/api/demo/transactions/', async (req, res) => {
 });
 
 app.post('/api/demo/transactions/assign/', jsonParser, async (req, res) => {
-   const transactions = await demoApp.assignTransactions(contractDemo, req.body.minerName, req.body.count.toString());
-   res.send(transactions);
+    await semaphore.runExclusive(async () => {
+        return await demoApp.assignTransactions(contractDemo, req.body.minerName, req.body.count.toString());
+    }).then((transactions) => {
+        res.send(transactions)
+    });
 });
 
 
@@ -256,12 +285,15 @@ app.delete("/api/vote/", jsonParser, async (req, res) => {
 app.post('/api/demo/start/', async (req, res) => {
     // Starts the flow of the system by allowing transaction assignment and model proposal
     await demoApp.toggleAcceptingStatus(contractDemo);
-    await axios.get("http://localhost:8000/transactions/ready/", {
+    for (const port in minersPorts) {
+        await axios.get(`http://localhost:${port}/transactions/ready/`, {
         params : {
             status : "ready",
-            time : 5
+            time : modelProposeDeadline
         }
     });
+    }
+    setTimeout(gatherTestData, modelProposeDeadline*60*1000)
     res.send("Miners are notified.")
 })
 

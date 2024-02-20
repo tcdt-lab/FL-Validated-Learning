@@ -73,6 +73,17 @@ class ModelApp {
         }
     }
 
+    async gatherAllTestRecords(contract) {
+        try {
+            const testRecordsBinary = await (await contract).submitTransaction("GatherAllTestRecords");
+            const testRecordsString = utf8decoder.decode(testRecordsBinary);
+            return JSON.parse(testRecordsString);
+        } catch (error) {
+            console.log(error);
+            return error;
+        }
+    }
+
 }
 
 module.exports = {

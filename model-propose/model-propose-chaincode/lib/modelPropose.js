@@ -60,6 +60,9 @@ class ModelPropose extends Contract {
         /*
         * Creates a new model with given parameters.
         * */
+
+        // TODO: Insert check for accepting status
+
         const modelExists = await this.ModelExists(ctx, id);
         if (modelExists) {
             throw Error(`A model already exists with id ${id}.`);
@@ -125,6 +128,25 @@ class ModelPropose extends Contract {
             result = await iterator.next();
         }
         return JSON.stringify(allResults);
+    }
+
+    async GatherAllTestRecords(ctx) {
+        const modelsString = await this.GetAllModels(ctx);
+        const models = JSON.parse(modelsString);
+        const testRecords = [];
+        for (const model of models) {
+            const testRecord = {
+                [model.id] : model.testData
+            }
+            testRecords.push(testRecord)
+        }
+        const testRecordsBlock = {
+            id : "testRecords",
+            testRecords : testRecords
+        }
+        await ctx.stub.putState(testRecordsBlock.id, Buffer.from(stringify(sortKeysRecursive(testRecordsBlock))));
+
+        return JSON.stringify(testRecordsBlock);
     }
 }
 

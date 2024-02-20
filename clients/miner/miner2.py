@@ -90,7 +90,7 @@ class Miner:
 
         self.model.fit(self.X_train, self.y_train, epochs=10, batch_size=32, callbacks=[TimerCallback()])
 
-        self.current_model = f"./model_1_{datetime.datetime.now()}.h5"
+        self.current_model = f"./{self.name}_{datetime.datetime.now()}.h5"
         self.model.save(self.current_model)
 
         print("Model trained.")
@@ -109,23 +109,23 @@ class Miner:
         self.get_test_records()
         print(self.test_records)
     
-# miner = Miner("miner_1")
-# miner.get_data()
-# executer = concurrent.futures.ThreadPoolExecutor(2)
-# app = Flask(__name__)
+miner = Miner("miner_2")
+miner.get_data()
+executer = concurrent.futures.ThreadPoolExecutor(2)
+app = Flask(__name__)
 
-# @app.route("/transactions/ready/")
-# def transactions():
-#     # Handles HTTP requests for starting the training step
-#     deadline = request.args.get('time')
-#     miner.deadline = (time.time() / 60) + int(deadline) - 0.5
-#     executer.submit(miner.train)
-#     return "training started."
+@app.route("/transactions/ready/")
+def transactions():
+    # Handles HTTP requests for starting the training step
+    deadline = request.args.get('time')
+    miner.deadline = (time.time() / 60) + int(deadline) - 0.5
+    executer.submit(miner.train)
+    return "training started."
 
-# @app.route("/tests/ready/")
-# def tests():
-#     executer.submit(miner.predict)
-#     return "I am getting the tests."
+@app.route("/tests/ready/")
+def tests():
+    executer.submit(miner.predict)
+    return "I am getting the tests."
 
-# if __name__ == '__main__':
-#     app.run(host="localhost", port=8000, debug=True)
+if __name__ == '__main__':
+    app.run(host="localhost", port=8001, debug=True)
