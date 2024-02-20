@@ -132,6 +132,36 @@ class CoinTransfer extends  Contract {
         }
         return JSON.stringify(allResults);
     }
+
+    async TransferCoins(ctx, senderId, receiverId, amount) {
+        /*
+        * Transfers some amount of currency from a sender wallet to a receiver wallet.
+        * */
+
+        const senderWalletBytes = await ctx.stub.getState(senderId);
+        if (!senderWalletBytes || senderWalletBytes.length === 0) {
+            throw Error(`No wallet exists with id ${senderId}`);
+        }
+        let senderWallet = JSON.parse(senderWalletBytes.toString());
+
+        const receiverWalletBytes = await ctx.stub.getState(receiverId);
+        if (!senderWalletBytes || senderWalletBytes.length === 0) {
+            throw Error(`No wallet exists with id ${receiverId}`);
+        }
+        let receiverWallet = JSON.parse(receiverWalletBytes.toString());
+
+        if (senderWallet.amount < amount) {
+            throw Error("The sender wallet does not have enough coins for this transaction.");
+        }
+
+        senderWallet.amount = senderWallet.amount - parseFloat(amount);
+        receiverWallet.amount = receiverWallet.amount + parseFloat(amount);
+
+        await ctx.stub.putState(senderId, Buffer.from(stringify(sortKeysRecursive(senderWallet))));
+        await ctx.stub.putState(receiverId, Buffer.from(stringify(sortKeysRecursive(receiverWallet))));
+
+        return JSON.stringify(receiverWallet);
+    }
 }
 
 module.exports = CoinTransfer;
