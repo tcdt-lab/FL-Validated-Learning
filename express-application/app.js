@@ -81,42 +81,42 @@ app.get('/', (req, res) => {
     res.send("Hello World!");
 });
 
-app.post('/api/ledger/', async (req, res) => {
+app.post('/api/demo/ledger/', async (req, res) => {
     await demoApp.initLedger(contract);
-    res.send("Ledger was successfully initialized.");
+    res.send("Demo ledger was successfully initialized.");
 });
 
-app.get('/api/transaction/', jsonParser, async (req, res) => {
+app.get('/api/demo/transaction/', jsonParser, async (req, res) => {
    const trx = await demoApp.readTrx(contract, req.body.id);
    res.send(trx);
 });
 
-app.post('/api/transaction/create/', jsonParser, async (req, res) => {
+app.post('/api/demo/transaction/create/', jsonParser, async (req, res) => {
    await demoApp.createWalletTrx(contract, req.body.id, req.body.walletId, req.body.name, req.body.amount);
    res.send("'create wallet' transaction was successfully created.");
 });
 
-app.post('/api/transaction/update/', jsonParser, async (req, res) => {
+app.post('/api/demo/transaction/update/', jsonParser, async (req, res) => {
     await demoApp.updateWalletTrx(contract, req.body.id, req.body.walletId, req.body.name, req.body.amount);
     res.send("'update wallet' transaction was successfully created.");
 });
 
-app.post('/api/transaction/delete/', jsonParser, async (req, res) => {
+app.post('/api/demo/transaction/delete/', jsonParser, async (req, res) => {
     await demoApp.deleteWalletTrx(contract, req.body.id, req.body.walletId);
     res.send("'delete wallet' transaction was successfully created.");
 });
 
-app.post('/api/transaction/transfer/', jsonParser, async (req, res) => {
+app.post('/api/demo/transaction/transfer/', jsonParser, async (req, res) => {
     await demoApp.transferCoinsTrx(contract, req.body.id, req.body.senderId, req.body.receiverId, req.body.amount);
     res.send("'transfer' transaction was successfully created.");
 })
 
-app.get('/api/transactions/', async (req, res) => {
+app.get('/api/demo/transactions/', async (req, res) => {
     const transactions = await demoApp.getAllTransactions(contract);
     res.send(transactions);
 });
 
-app.post('/api/transactions/assign', jsonParser, async (req, res) => {
+app.post('/api/demo/transactions/assign/', jsonParser, async (req, res) => {
    const transactions = await demoApp.assignTransactions(contract, req.body.minerName, req.body.count);
    res.send(transactions);
 });
