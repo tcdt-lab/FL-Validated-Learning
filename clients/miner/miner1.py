@@ -21,8 +21,7 @@ def tests():
 
 @app.route("/preds/ready/")
 def preds():
-    # executer.submit(miner.vote)
-    miner.vote()
+    executer.submit(miner.vote)
     return "I am voting."
 
 if __name__ == '__main__':

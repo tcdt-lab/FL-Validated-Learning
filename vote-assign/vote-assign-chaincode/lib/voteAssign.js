@@ -103,6 +103,26 @@ class VoteAssign extends Contract {
         }
         return JSON.stringify(allResults);
     }
+
+    async SelectWinners(ctx, count) {
+        const votesString = await this.GetAllVotes(ctx);
+        const votes = JSON.parse(votesString);
+        let board = {};
+        for (const voter of votes) {
+            for (let i = 0 ; i < voter.votes.length ; i++) {
+                if (board[voter.votes[i]] == null) {
+                    board[voter.votes[i]] = voter.votes.length - i;
+                } else {
+                    board[voter.votes[i]] += voter.votes.length;
+                }
+            }
+        }
+        const jsonArray = Object.entries(board);
+        jsonArray.sort((a, b) => a[0].localeCompare(b[0]));
+        board = Object.fromEntries(jsonArray.slice(0, count));
+        const winners = Object.keys(board);
+        return JSON.stringify(winners);
+    }
 }
 
 module.exports = VoteAssign;

@@ -72,6 +72,17 @@ class VoteApp {
             return error;
         }
     }
+
+    async selectWinners(contract, count) {
+        try {
+            const winnersBinary = await (await contract).evaluateTransaction("SelectWinners", count);
+            const winnersString = utf8decoder.decode(winnersBinary);
+            return JSON.parse(winnersString);
+        } catch(error) {
+            console.log(error);
+            return error;
+        }
+    }
 }
 
 module.exports = {

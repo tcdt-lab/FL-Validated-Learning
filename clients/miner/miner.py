@@ -151,7 +151,6 @@ class Miner:
             metrics[key] = (acc, dt)
         metrics = {k: v for k, v in sorted(metrics.items(), key=cmp_to_key(self.custom_compare), reverse=True)}
         votes = [f"model_{key[-1]}" for key in metrics.keys()]
-        print(votes)
         requests.post(f"http://localhost:{self.peer_port}/api/vote/", json={
             "id" : f"vote_{self.name[-1]}",
             "votes" : votes

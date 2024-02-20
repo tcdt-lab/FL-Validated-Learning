@@ -36,10 +36,13 @@ const peerHostAlias = "peer0.org1.example.com";
 
 // deadlines for each step
 const modelProposeDeadline = 1;
-const predProposeDeadline = 0.5;
+const predProposeDeadline = 0.25;
+const voteAssignDeadline = 0.25;
 
 // miners ports
-const minersPorts = [8000, 8001, 8002, 8003]
+const minersPorts = [8000, 8001, 8002, 8003];
+
+const winnerCount = 2;
 
 // contract for each chaincode
 const contractDemo = InitConnection("demo", "demoCC");
@@ -106,6 +109,11 @@ async function InitConnection(channelName, chaincodeName) {
     return network.getContract(chaincodeName);
 }
 
+async function selectWinners() {
+    const winners = await voteApp.selectWinners(contractVote, winnerCount.toString());
+    console.log(winners);
+}
+
 async function gatherPredictions() {
     await predApp.toggleAcceptingStatus(contractPred);
     for (const port of minersPorts) {
@@ -116,6 +124,7 @@ async function gatherPredictions() {
         });
     }
     console.log("Miners are notified to vote the predictions.");
+    setTimeout(selectWinners, voteAssignDeadline*60*1000);
 }
 
 async function gatherTestData() {
@@ -130,7 +139,7 @@ async function gatherTestData() {
         });
     }
     console.log("Miners are notified to predict test data records.");
-    setTimeout(gatherPredictions, predProposeDeadline*60*1000)
+    setTimeout(gatherPredictions, predProposeDeadline*60*1000);
 }
 
 app.get('/', (req, res) => {
@@ -176,11 +185,6 @@ app.get('/api/demo/transactions/', async (req, res) => {
 });
 
 app.post('/api/demo/transactions/assign/', jsonParser, async (req, res) => {
-    // await semaphore.runExclusive(async () => {
-    //     return await demoApp.assignTransactions(contractDemo, req.body.minerName, req.body.count.toString());
-    // }).then((transactions) => {
-    //     res.send(transactions)
-    // });
     const transactions = await demoApp.assignTransactions(contractDemo, req.body.minerName, req.body.count.toString());
     res.send(transactions);
 });
