@@ -129,6 +129,16 @@ class DemoApp {
             return error;
         }
     }
+
+    async refreshTransactions(contract, winners) {
+        try {
+            await (await contract).submitTransaction("RefreshTransactions", winners);
+            return "Demo transactions were successfully refreshed."
+        } catch (error) {
+            console.log(error);
+            return error;
+        }
+    }
 }
 
 

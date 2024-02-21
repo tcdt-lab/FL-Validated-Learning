@@ -10,7 +10,7 @@ app = Flask(__name__)
 def transactions():
     # Handles HTTP requests for starting the training step
     deadline = request.args.get('time')
-    miner.deadline = (time.time() / 60) + int(deadline) - 0.5
+    miner.deadline = (time.time() / 60) + float(deadline) - 0.1
     executer.submit(miner.train)
     return "training started."
 

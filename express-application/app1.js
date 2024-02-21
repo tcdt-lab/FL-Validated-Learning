@@ -35,9 +35,9 @@ const peerEndPoint = "localhost:7051";
 const peerHostAlias = "peer0.org1.example.com";
 
 // deadlines for each step
-const modelProposeDeadline = 1;
-const predProposeDeadline = 0.25;
-const voteAssignDeadline = 0.25;
+const modelProposeDeadline = 0.67;
+const predProposeDeadline = 0.1;
+const voteAssignDeadline = 0.1;
 
 // miners ports
 const minersPorts = [8000, 8001, 8002, 8003];
@@ -109,7 +109,9 @@ async function InitConnection(channelName, chaincodeName) {
     return network.getContract(chaincodeName);
 }
 
-async function refreshStates() {
+async function refreshStates(winners) {
+    await demoApp.refreshTransactions(contractDemo, JSON.stringify(winners));
+    console.log("Demo transactions are reset.")
     await modelApp.deleteAllModels(contractModel);
     await predApp.deleteAllPredictions(contractPred);
     await voteApp.deleteAllVotes(contractVote);
@@ -118,9 +120,10 @@ async function refreshStates() {
 
 async function selectWinners() {
     const winners = await voteApp.selectWinners(contractVote, winnerCount.toString());
+    console.log(`Winners of the current round are : ${winners}`);
     const message = await mainApp.runWinnerTransactions(contractMain, JSON.stringify(winners));
     console.log(message);
-    await refreshStates();
+    await refreshStates(winners);
 }
 
 async function gatherPredictions() {
@@ -206,7 +209,7 @@ app.get('/api/demo/transactions/assign/', jsonParser, async (req, res) => {
 app.delete('/api/demo/transaction/', jsonParser, async (req, res) => {
     const message = await demoApp.deleteDemoTrx(contractDemo, req.body.id);
     res.send(message);
-})
+});
 
 
 /*
@@ -345,8 +348,9 @@ app.post('/api/demo/start/', async (req, res) => {
             }
         });
     }
-    setTimeout(gatherTestData, modelProposeDeadline*60*1000)
-    res.send("Miners are notified.")
+    setTimeout(gatherTestData, modelProposeDeadline*60*1000);
+    console.log("Miners are notified to gather transactions and train local models.");
+    res.send("Miners are notified to gather transactions and train local models.");
 })
 
 app.listen(port, () => {
