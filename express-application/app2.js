@@ -172,7 +172,7 @@ app.post('/api/model/ledger/', async (req, res) => {
 });
 
 app.post('/api/model/', jsonParser, async (req, res) => {
-    const message = await modelApp.createModel(contractModel, req.body.id, req.body.hash, JSON.stringify(req.body.transactions), JSON.stringify((req.body.testData)));
+    const message = await modelApp.createModel(contractModel, req.body.id, req.body.hash, req.body.path, JSON.stringify(req.body.transactions), JSON.stringify((req.body.testData)));
     res.send(message);
 });
 

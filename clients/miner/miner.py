@@ -9,6 +9,7 @@ import random
 import hashlib
 import numpy as np
 from functools import cmp_to_key
+import os
 
 class TimerCallback(tf.keras.callbacks.Callback):
     def __init__(self, deadline):
@@ -107,11 +108,14 @@ class Miner:
               metrics=["accuracy"])
 
         self.model.fit(self.X_train, self.y_train, epochs=10, batch_size=32, callbacks=[TimerCallback(self.deadline)])
+        print("Local model is trained.")
 
         self.current_model = f"./{self.name}_{datetime.datetime.now()}.h5"
         self.model.save(self.current_model)
 
-        print("Model trained.")
+        cwd = os.path.dirname(__file__)
+        self.current_model_path = os.path.abspath(os.path.join(cwd, self.current_model))
+
         test_data = self.get_random_test()
         test_data = [data.tolist() for data in test_data]
         transaction_ids = [transaction["id"] for transaction in self.transactions]
@@ -119,6 +123,7 @@ class Miner:
         requests.post(f"http://localhost:{self.peer_port}/api/model/", json={
             "id" : f"model_{self.name[-1]}",
             "hash" : hash_value,
+            "path" : self.current_model_path,
             "transactions" : transaction_ids,
             "testData" : test_data
         })

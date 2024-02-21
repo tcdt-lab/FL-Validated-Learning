@@ -56,7 +56,7 @@ class ModelPropose extends Contract {
         return modelBinary && modelBinary.length > 0;
     }
 
-    async CreateModel(ctx, id, hash, transactions, testData){
+    async CreateModel(ctx, id, hash, path, transactions, testData){
         /*
         * Creates a new model with given parameters.
         * */
@@ -76,6 +76,7 @@ class ModelPropose extends Contract {
         const model = {
             id : id,
             hash : hash,
+            path : path,
             transactions : JSON.parse(transactions),
             testData : JSON.parse(testData)
         }
@@ -157,6 +158,20 @@ class ModelPropose extends Contract {
         for (const model of models){
             await ctx.stub.deleteState(model.id);
         }
+    }
+
+    async GetWinnerModels(ctx, winners) {
+        const results = [];
+        winners = JSON.parse(winners);
+        for (const winner of winners) {
+            const modelString = await this.ReadModel(ctx, winner);
+            const model = JSON.parse(modelString);
+            results.push({
+                "hash" : model.hash,
+                "path" : model.path
+            });
+        }
+        return JSON.stringify(results);
     }
 }
 

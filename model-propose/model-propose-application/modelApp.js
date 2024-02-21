@@ -19,12 +19,12 @@ class ModelApp {
         }
     }
 
-    async createModel(contract, id, minerName, hash, transactions) {
+    async createModel(contract, id, path, minerName, hash, transactions) {
         /*
         * Invokes the create model function of chaincode modelCC.
         * */
         try {
-            await (await contract).submitTransaction("CreateModel", id, minerName, hash, transactions);
+            await (await contract).submitTransaction("CreateModel", id, path, minerName, hash, transactions);
             return "Model was successfully created.";
         } catch (error) {
             console.log(error);
@@ -101,6 +101,17 @@ class ModelApp {
             return "All models were successfully deleted."
         } catch(error) {
             console.log(error)
+            return error;
+        }
+    }
+
+    async getWinnerModels(contract, winners) {
+        try {
+            const modelsBinary = await (await contract).evaluateTransaction("GetWinnerModels", winners);
+            const modelsString = utf8decoder.decode(modelsBinary);
+            return JSON.parse(modelsString);
+        } catch (error) {
+            console.log(error);
             return error;
         }
     }

@@ -39,8 +39,9 @@ const modelProposeDeadline = 0.67;
 const predProposeDeadline = 0.1;
 const voteAssignDeadline = 0.1;
 
-// miners ports
+// ports
 const minersPorts = [8000, 8001, 8002, 8003];
+const aggregatorPort = 5050;
 
 const winnerCount = 2;
 
@@ -123,6 +124,16 @@ async function selectWinners() {
     console.log(`Winners of the current round are : ${winners}`);
     const message = await mainApp.runWinnerTransactions(contractMain, JSON.stringify(winners));
     console.log(message);
+    const models = await modelApp.getWinnerModels(contractModel, JSON.stringify(winners));
+    await axios({
+        method: 'post',
+        url: `http://localhost:${aggregatorPort}/aggregate/`,
+        headers: {},
+        data: {
+            models: models,
+        }
+    });
+    console.log("Aggregator is notified to update the global model.");
     await refreshStates(winners);
 }
 
@@ -245,7 +256,7 @@ app.post('/api/model/ledger/', async (req, res) => {
 });
 
 app.post('/api/model/', jsonParser, async (req, res) => {
-    const message = await modelApp.createModel(contractModel, req.body.id, req.body.hash, JSON.stringify(req.body.transactions), JSON.stringify((req.body.testData)));
+    const message = await modelApp.createModel(contractModel, req.body.id, req.body.hash, req.body.path, JSON.stringify(req.body.transactions), JSON.stringify((req.body.testData)));
     res.send(message);
 });
 
