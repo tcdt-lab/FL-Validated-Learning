@@ -27,7 +27,7 @@ def aggregate_weights(models):
         new_layers[i] = new_layers[i] / count
     global_model.set_weights(new_layers)
     global_model.save("../global model/global_model.keras")
-    print(Fore.BLUE + "Global model is successfully updated.")
+    print(Fore.BLUE + "Global model is successfully updated.", end=Fore.WHITE+"\n")
 
 
 @app.route("/aggregate/", methods=['POST'])
