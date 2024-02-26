@@ -10,4 +10,4 @@ output_classifier = tf.keras.layers.Dense(10, activation="softmax", name="output
 
 classifier = tf.keras.models.Model(input_classifer, output_classifier)
 
-classifier.save("./global_model.h5")
+classifier.save("./global_model.keras")

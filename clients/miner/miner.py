@@ -1,3 +1,6 @@
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="tensorflow")
+
 import requests
 import json
 import tensorflow as tf
@@ -54,7 +57,7 @@ class Miner:
     
     def get_global_model(self):
         # Gets the global model
-        self.model = tf.keras.models.load_model("../global model/global_model.h5")
+        self.model = tf.keras.models.load_model("../global model/global_model.keras")
     
     def get_data(self):
         # Downloads the fashion mnist data and takes the part assigned to it as data.
@@ -107,10 +110,14 @@ class Miner:
               optimizer="adam",
               metrics=["accuracy"])
 
-        self.model.fit(self.X_train, self.y_train, epochs=10, batch_size=32, callbacks=[TimerCallback(self.deadline)])
+        log_dir = f"logs/fit/{self.name}/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        tensorboard_callback = tf.keras.callbacks.TensorBoard(
+                log_dir=log_dir, update_freq="epoch")
+        self.model.fit(self.X_train, self.y_train, epochs=10, batch_size=32, callbacks=[TimerCallback(self.deadline),
+                                                                                        tensorboard_callback])
         print("Local model is trained.")
 
-        self.current_model = f"./{self.name}_{datetime.datetime.now()}.h5"
+        self.current_model = f"./{self.name}_{datetime.datetime.now()}.keras"
         self.model.save(self.current_model)
 
         cwd = os.path.dirname(__file__)

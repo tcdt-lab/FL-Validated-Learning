@@ -1,3 +1,4 @@
+from colorama import Fore
 from flask import Flask, request
 import concurrent.futures
 import hashlib
@@ -10,7 +11,7 @@ app = Flask(__name__)
 
 
 def aggregate_weights(models):
-    global_model = tf.keras.models.load_model("../global model/global_model.h5")
+    global_model = tf.keras.models.load_model("../global model/global_model.keras")
     layers = global_model.get_weights()
     new_layers = [np.zeros_like(layer) for layer in layers]
     count = 0
@@ -25,8 +26,8 @@ def aggregate_weights(models):
     for i in range(len(new_layers)):
         new_layers[i] = new_layers[i] / count
     global_model.set_weights(new_layers)
-    global_model.save("../global model/global_model.h5")
-    print("Global model is successfully updated.")
+    global_model.save("../global model/global_model.keras")
+    print(Fore.BLUE + "Global model is successfully updated.")
 
 
 @app.route("/aggregate/", methods=['POST'])

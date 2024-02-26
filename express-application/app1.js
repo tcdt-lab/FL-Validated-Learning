@@ -44,6 +44,8 @@ const minersPorts = [8000, 8001, 8002, 8003];
 const aggregatorPort = 5050;
 
 const winnerCount = 2;
+const rounds = 3;
+let current_round = 0;
 
 // contract for each chaincode
 const contractDemo = InitConnection("demo", "demoCC");
@@ -135,6 +137,8 @@ async function selectWinners() {
     });
     console.log("Aggregator is notified to update the global model.");
     await refreshStates(winners);
+    console.log(`*** ROUND ${current_round} COMPLETED *** \n`);
+    await startRound();
 }
 
 async function gatherPredictions() {
@@ -163,6 +167,27 @@ async function gatherTestData() {
     }
     console.log("Miners are notified to predict test data records.");
     setTimeout(gatherPredictions, predProposeDeadline*60*1000);
+}
+
+async function startRound() {
+    current_round += 1;
+    if (current_round <= rounds) {
+        await demoApp.toggleAcceptingStatus(contractDemo);
+        for (const port of minersPorts) {
+            await axios.get(`http://localhost:${port}/transactions/ready/`, {
+                params: {
+                    status: "ready",
+                    time: modelProposeDeadline
+                }
+            });
+        }
+        setTimeout(gatherTestData, modelProposeDeadline * 60 * 1000);
+        console.log(`*** ROUND ${current_round} STARTED ***`);
+        console.log("Miners are notified to gather transactions and train local models.");
+    } else {
+        console.log("All rounds Completed.");
+        current_round = 0;
+    }
 }
 
 app.get('/', (req, res) => {
@@ -319,7 +344,7 @@ app.delete("/api/pred/", jsonParser, async (req, res) => {
 * */
 
 app.post("/api/vote/ledger/", async (req, res) => {
-    const message = await voteApp.initLedger(contractVote);
+    const message = await voteApp.initVotes(contractVote);
     res.send(message);
 });
 
@@ -348,22 +373,12 @@ app.delete("/api/vote/", jsonParser, async (req, res) => {
 * Application flow
 * */
 
-app.post('/api/demo/start/', async (req, res) => {
+app.post('/api/start/', async (req, res) => {
     // Starts the flow of the system by allowing transaction assignment and model proposal
-    await demoApp.toggleAcceptingStatus(contractDemo);
-    for (const port of minersPorts) {
-        await axios.get(`http://localhost:${port}/transactions/ready/`, {
-            params : {
-                status : "ready",
-                time : modelProposeDeadline
-            }
-        });
-    }
-    setTimeout(gatherTestData, modelProposeDeadline*60*1000);
-    console.log("Miners are notified to gather transactions and train local models.");
+    await startRound();
     res.send("Miners are notified to gather transactions and train local models.");
 })
 
 app.listen(port, () => {
-    console.log(`Server is listening on localhost:${port}.`);
+    console.log(`Server is listening on localhost:${port}.\n`);
 });
