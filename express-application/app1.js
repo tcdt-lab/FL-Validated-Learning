@@ -35,9 +35,9 @@ const peerEndPoint = "localhost:7051";
 const peerHostAlias = "peer0.org1.example.com";
 
 // deadlines for each step
-const modelProposeDeadline = 0.67;
-const predProposeDeadline = 0.1;
-const voteAssignDeadline = 0.1;
+const modelProposeDeadline = 45;
+const predProposeDeadline = 3;
+const voteAssignDeadline = 3;
 
 // ports
 const minersPorts = [8000, 8001, 8002, 8003];
@@ -151,7 +151,7 @@ async function gatherPredictions() {
         });
     }
     console.log("Miners are notified to vote the predictions.");
-    setTimeout(selectWinners, voteAssignDeadline*60*1000);
+    setTimeout(selectWinners, voteAssignDeadline*1000);
 }
 
 async function gatherTestData() {
@@ -166,7 +166,7 @@ async function gatherTestData() {
         });
     }
     console.log("Miners are notified to predict test data records.");
-    setTimeout(gatherPredictions, predProposeDeadline*60*1000);
+    setTimeout(gatherPredictions, predProposeDeadline*1000);
 }
 
 async function startRound() {
@@ -177,11 +177,12 @@ async function startRound() {
             await axios.get(`http://localhost:${port}/transactions/ready/`, {
                 params: {
                     status: "ready",
-                    time: modelProposeDeadline
+                    time: modelProposeDeadline,
+                    round: current_round
                 }
             });
         }
-        setTimeout(gatherTestData, modelProposeDeadline * 60 * 1000);
+        setTimeout(gatherTestData, modelProposeDeadline * 1000);
         console.log(`*** ROUND ${current_round} STARTED ***`);
         console.log("Miners are notified to gather transactions and train local models.");
     } else {

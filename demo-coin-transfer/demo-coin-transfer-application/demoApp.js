@@ -13,7 +13,7 @@ class DemoApp {
     async initTransactions(contract) {
         try {
             await (await contract).submitTransaction('InitTransactions');
-            return "Demo ledger was successfully initialized.";
+            return "Demo ledger was successfully initialized.\n";
         } catch (error) {
             console.log(error);
             return error;

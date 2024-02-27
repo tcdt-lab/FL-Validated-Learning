@@ -44,3 +44,4 @@ __pycache__/
 .ipynb_checkpoints
 logs/
 **/logs
+**/*.json

@@ -16,7 +16,7 @@ class MainApp {
         */
         try {
             await (await contract).submitTransaction("InitWallets");
-            return "Ledger was successfully initialized."
+            return "Main ledger was successfully initialized.\n"
         } catch (error) {
             console.log(error);
             return error;

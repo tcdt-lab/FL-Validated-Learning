@@ -21,7 +21,7 @@ class TimerCallback(tf.keras.callbacks.Callback):
     # TODO: test this.
     # Checks whether the miner has time to train or not. if not it stops the training and sends the model to the ledger.
     def on_epoch_end(self, epoch, logs=None):
-        current_time = time.time() / 60
+        current_time = time.time()
         if current_time > self.deadline:
             self.model.stop_training = True 
 
@@ -33,6 +33,7 @@ class Miner:
         self.total_miners = 5
         self.test_size = 5
         self.peer_port = peer_port
+        self.round = 0
 
     def get_transactions(self):
         # Gets assigned transactions from the demo ledger
@@ -110,14 +111,15 @@ class Miner:
               optimizer="adam",
               metrics=["accuracy"])
 
-        log_dir = f"logs/fit/{self.name}/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        tensorboard_callback = tf.keras.callbacks.TensorBoard(
-                log_dir=log_dir, update_freq="epoch")
-        self.model.fit(self.X_train, self.y_train, epochs=10, batch_size=32, callbacks=[TimerCallback(self.deadline),
-                                                                                        tensorboard_callback])
+        history = self.model.fit(self.X_train, self.y_train, epochs=20, batch_size=32, 
+                                 validation_data=(self.preprocess(self.X_test), self.y_test), 
+                                 callbacks=[TimerCallback(self.deadline)])
         print("Local model is trained.")
 
-        self.current_model = f"./{self.name}_{datetime.datetime.now()}.keras"
+        current_name = f"{self.name}_round_{self.round}"
+        self.current_model = f"./{current_name}.keras"
+        json.dump(history.history, open(f"{current_name}.json", 'x'))
+
         self.model.save(self.current_model)
 
         cwd = os.path.dirname(__file__)

@@ -12,7 +12,7 @@ class PredApp {
         * */
         try {
             await (await contract).submitTransaction("InitPredictions");
-            return "Ledger was successfully initialized."
+            return "Prediction ledger was successfully initialized.\n";
         } catch (error) {
             console.log(error);
             return error;
