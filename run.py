@@ -76,7 +76,7 @@ if __name__ == "__main__":
     # Step 7 : Re-initializing the model
     print("Re-initializing the global model...")
     os.chdir(os.path.join(cwd, "clients", "global model"))
-    executor.submit(os.system, "python3 ./model.py")
+    os.system("python3 ./model.py")
     time.sleep(3)
 
     # Step 8 : Sending start request

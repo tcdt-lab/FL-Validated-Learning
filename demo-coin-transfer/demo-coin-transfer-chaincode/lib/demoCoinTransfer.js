@@ -6,8 +6,8 @@ const { Contract } = require("fabric-contract-api");
 
 class DemoCoinTransfer extends  Contract {
 
-    
-    
+
+
     async InitTransactions(ctx) {
         /*
         * Initializes a ledger with some predefined transactions.
@@ -51,6 +51,11 @@ class DemoCoinTransfer extends  Contract {
             {
                 id : "modelAcceptingInfo",
                 accepting : false
+            },
+            {
+                id : "rangeInfo",
+                firstAssigned : "",
+                lastAssigned : ""
             }
         ];
 
@@ -87,7 +92,7 @@ class DemoCoinTransfer extends  Contract {
         const countBinary = await ctx.stub.getState("demoCount");
         const countString = countBinary.toString();
         let countBlock = JSON.parse(countString);
-        
+
         countBlock.current = countBlock.current + 1;
         await ctx.stub.putState(countBlock.id, Buffer.from(stringify(sortKeysRecursive(countBlock))));
     }
@@ -237,7 +242,7 @@ class DemoCoinTransfer extends  Contract {
     }
 
     async ToggleAcceptingStatus(ctx) {
-        /* 
+        /*
         * Toggles the accepting status at this moment
         * */
         const infoBytes = await ctx.stub.getState("modelAcceptingInfo");
@@ -248,7 +253,7 @@ class DemoCoinTransfer extends  Contract {
     }
 
     async GetAcceptingStatus(ctx) {
-        /* 
+        /*
         * Returns the accepting status at this moment
         * */
         const infoBytes = await ctx.stub.getState("modelAcceptingInfo");
@@ -273,6 +278,8 @@ class DemoCoinTransfer extends  Contract {
             return JSON.stringify(res)
         }
 
+        let rangeInfoString = await this.ReadTrx(ctx, "rangeInfo");
+        let rangeInfo = JSON.parse(rangeInfoString);
         const assigned = [];
         count = parseInt(count)
         const iterator = await ctx.stub.getStateByRange('', '');
@@ -287,6 +294,11 @@ class DemoCoinTransfer extends  Contract {
                 record = strValue;
             }
             if (record.assigned === null) {
+                if (rangeInfo.firstAssigned === "") {
+                    rangeInfo.firstAssigned = record.id
+                } else {
+                    rangeInfo.lastAssigned = record.id
+                }
                 record.assigned = minerName;
                 assigned.push(record);
             }
@@ -302,6 +314,9 @@ class DemoCoinTransfer extends  Contract {
         for (const trx of assigned) {
             await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
         }
+
+        await ctx.stub.putState(rangeInfo.id, Buffer.from(stringify(sortKeysRecursive(rangeInfo))));
+
         const res = {
             status : "Accepted",
             data : assigned
@@ -323,7 +338,7 @@ class DemoCoinTransfer extends  Contract {
                 console.log(err);
                 record = strValue;
             }
-            if ((record.id.startsWith("demo")) && (record.assigned === name)) {
+            if ((record.id.startsWith("demo_")) && (record.assigned === name)) {
                 allResults.push(record);
             }
             result = await iterator.next();
@@ -345,10 +360,13 @@ class DemoCoinTransfer extends  Contract {
     }
 
     async RefreshTransactions(ctx, winners) {
+        let rangeInfoString = await this.ReadTrx(ctx, "rangeInfo");
+        let rangeInfo = JSON.parse(rangeInfoString);
+
         const deleteList = [];
         winners = JSON.parse(winners);
         // range query with empty string for startKey and endKey does an open-ended query of all assets in the chaincode namespace.
-        const iterator = await ctx.stub.getStateByRange('', '');
+        const iterator = await ctx.stub.getStateByRange(rangeInfo.firstAssigned, rangeInfo.lastAssigned);
         let result = await iterator.next();
         while (!result.done) {
             const strValue = Buffer.from(result.value.value.toString()).toString('utf8');
@@ -372,6 +390,10 @@ class DemoCoinTransfer extends  Contract {
         for (const record of deleteList) {
             await ctx.stub.deleteState(record.id);
         }
+
+        rangeInfo.firstAssigned = "";
+        rangeInfo.lastAssigned = "";
+        await ctx.stub.putState(rangeInfo.id, Buffer.from(stringify(sortKeysRecursive(rangeInfo))));
     }
 }
 

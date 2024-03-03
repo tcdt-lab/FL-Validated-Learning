@@ -17,6 +17,7 @@
   "author": "Amirreza Sokhankhosh",
   "license": "Apache-2.0",
   "dependencies": {
+    "async-mutex": "^0.4.1",
     "fabric-contract-api": "^2.0.0",
     "fabric-shim": "^2.0.0",
     "json-stringify-deterministic": "^1.0.1",
