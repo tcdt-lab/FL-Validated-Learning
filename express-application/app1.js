@@ -15,6 +15,7 @@ const voteApp = new VoteApp();
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
+app.use(express.json({limit: '50mb', extended: true}));
 const jsonParser = bodyParser.json();
 const port = 3000;
 
@@ -35,9 +36,9 @@ const peerEndPoint = "localhost:7051";
 const peerHostAlias = "peer0.org1.example.com";
 
 // deadlines for each step
-const modelProposeDeadline = 45;
-const predProposeDeadline = 3;
-const voteAssignDeadline = 3;
+const modelProposeDeadline = 120;
+const predProposeDeadline = 10;
+const voteAssignDeadline = 10;
 
 // ports
 const minersPorts = [8000, 8001, 8002, 8003];
@@ -193,6 +194,10 @@ async function startRound() {
 
 app.get('/', (req, res) => {
     res.send("Hello World! from demo.");
+});
+
+app.get('/exit', (req, res) => {
+    process.exit();
 });
 
 /*

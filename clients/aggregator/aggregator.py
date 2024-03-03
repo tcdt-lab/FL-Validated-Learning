@@ -4,6 +4,8 @@ import concurrent.futures
 import hashlib
 import tensorflow as tf
 import numpy as np
+import os
+import signal
 
 
 executer = concurrent.futures.ThreadPoolExecutor(2)
@@ -35,6 +37,10 @@ def aggregate():
     models = request.get_json()["models"]
     executer.submit(aggregate_weights, models)
     return "aggregation started."
+
+@app.route("/exit/")
+def exit_aggregator():
+    os.kill(os.getpid(), signal.SIGTERM)
 
 if __name__ == '__main__':
     app.run(host="localhost", port=5050, debug=True)

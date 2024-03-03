@@ -44,7 +44,7 @@ class ModelPropose extends Contract {
         ];
 
         for (const model of models) {
-            await ctx.stub.putState(model.id, Buffer.from(stringify(sortKeysRecursive(model))));
+            await ctx.stub.putState(model.id, Buffer.from(stringify(model)));
         }
     }
 
@@ -56,22 +56,37 @@ class ModelPropose extends Contract {
         return modelBinary && modelBinary.length > 0;
     }
 
+    async CheckCreateModel(ctx, id) {
+        const acceptingBinary = await ctx.stub.invokeChaincode("demoCC", ["GetAcceptingStatus"], "demo");
+        const accepting = Boolean(acceptingBinary.toString());
+
+        if (! accepting) {
+            return false.toString();
+        }
+
+        const modelExists = await this.ModelExists(ctx, id);
+        if (modelExists) {
+            return false.toString();
+        }
+
+        return true.toString();
+    }
+
     async CreateModel(ctx, id, hash, path, transactions, testData){
         /*
         * Creates a new model with given parameters.
         * */
 
-        // TODO: Insert check for accepting status
-        const acceptingBinary = await ctx.stub.invokeChaincode("demoCC", ["GetAcceptingStatus"], "demo");
-        const accepting = Boolean(acceptingBinary.toString());
-        if (! accepting) {
-            throw Error(`Sorry, we are not accepting models right now.`);
-        }
-
-        const modelExists = await this.ModelExists(ctx, id);
-        if (modelExists) {
-            throw Error(`A model already exists with id ${id}.`);
-        }
+        // const acceptingBinary = await ctx.stub.invokeChaincode("demoCC", ["GetAcceptingStatus"], "demo");
+        // const accepting = Boolean(acceptingBinary.toString());
+        // if (! accepting) {
+        //     throw Error(`Sorry, we are not accepting models right now.`);
+        // }
+        //
+        // const modelExists = await this.ModelExists(ctx, id);
+        // if (modelExists) {
+        //     throw Error(`A model already exists with id ${id}.`);
+        // }
 
         const model = {
             id : id,
@@ -81,7 +96,7 @@ class ModelPropose extends Contract {
             testData : JSON.parse(testData)
         }
 
-        await ctx.stub.putState(model.id, Buffer.from(stringify(sortKeysRecursive(model))));
+        await ctx.stub.putState(model.id, Buffer.from(stringify(model)));
 
         return model.toString();
     }
@@ -147,7 +162,7 @@ class ModelPropose extends Contract {
             id : "testRecords",
             testRecords : testRecords
         }
-        await ctx.stub.putState(testRecordsBlock.id, Buffer.from(stringify(sortKeysRecursive(testRecordsBlock))));
+        await ctx.stub.putState(testRecordsBlock.id, Buffer.from(stringify(testRecordsBlock)));
 
         return JSON.stringify(testRecordsBlock);
     }

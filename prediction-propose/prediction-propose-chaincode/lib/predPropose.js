@@ -66,7 +66,7 @@ class PredPropose extends Contract {
             time : time
         }
 
-        await ctx.stub.putState(pred.id, Buffer.from(stringify(sortKeysRecursive(pred))));
+        await ctx.stub.putState(pred.id, Buffer.from(stringify(pred)));
 
         return pred.toString();
     }

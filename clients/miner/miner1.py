@@ -23,7 +23,12 @@ def tests():
 @app.route("/preds/ready/")
 def preds():
     executer.submit(miner.vote)
+    # miner.vote()
     return "I am voting."
 
+@app.route("/exit/")
+def exit_miner():
+    os.kill(os.getpid(), signal.SIGTERM)
+
 if __name__ == '__main__':
-    app.run(host="localhost", port=8000, debug=True)
+    app.run(host="localhost", port=8000)

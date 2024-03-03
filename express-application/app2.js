@@ -15,6 +15,7 @@ const voteApp = new VoteApp();
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
+app.use(express.json({limit: '50mb', extended: true}));
 const jsonParser = bodyParser.json();
 const port = 3001;
 
@@ -94,6 +95,10 @@ async function InitConnection(channelName, chaincodeName) {
 
 app.get('/', (req, res) => {
     res.send("Hello World! from demo.");
+});
+
+app.get('/exit', (req, res) => {
+    process.exit();
 });
 
 /*

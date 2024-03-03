@@ -24,8 +24,13 @@ class ModelApp {
         * Invokes the create model function of chaincode modelCC.
         * */
         try {
-            await (await contract).submitTransaction("CreateModel", id, path, minerName, hash, transactions);
-            return "Model was successfully created.";
+            const checkBinary = await (await contract).evaluateTransaction("CheckCreateModel", id);
+            const checkString = utf8decoder.decode(checkBinary);
+            if (JSON.parse(checkString)) {
+                await (await contract).submitTransaction("CreateModel", id, path, minerName, hash, transactions);
+                return "Model was successfully created.";
+            }
+            return "Checking model creation failed."
         } catch (error) {
             console.log(error);
             return error;

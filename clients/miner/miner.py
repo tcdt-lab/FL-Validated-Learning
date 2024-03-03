@@ -13,6 +13,8 @@ import hashlib
 import numpy as np
 from functools import cmp_to_key
 import os
+import matplotlib.pyplot as plt
+import signal
 
 class TimerCallback(tf.keras.callbacks.Callback):
     def __init__(self, deadline):
@@ -31,9 +33,10 @@ class Miner:
         self.name = name
         self.max_trx = 2
         self.total_miners = 5
-        self.test_size = 5
+        self.test_size = 100
         self.peer_port = peer_port
         self.round = 0
+        self.data_sizes = [0.1, 0.15, 0.5, 0.25]
 
     def get_transactions(self):
         # Gets assigned transactions from the demo ledger
@@ -59,22 +62,35 @@ class Miner:
     def get_global_model(self):
         # Gets the global model
         self.model = tf.keras.models.load_model("../global model/global_model.keras")
+
+    def softmax(self, array):
+        array = np.array(array)
+        array = np.exp(array) / np.sum(np.exp(array))
+
     
     def get_data(self):
         # Downloads the fashion mnist data and takes the part assigned to it as data.
         (X_train, y_train), (X_test, y_test) = tf.keras.datasets.fashion_mnist.load_data()
         k = int(self.name[-1]) - 1
-        train_size = len(y_train) // self.total_miners
-        test_size = len(y_test) // self.total_miners
-        self.X_train, self.y_train = X_train[k*train_size:(k + 1)*train_size], y_train[k*train_size:(k + 1)*train_size]
-        self.X_test, self.y_test = X_test[k*test_size:(k + 1)*test_size], y_test[k*test_size:(k + 1)*test_size]
+        # train_size = len(y_train) // self.total_miners
+        # test_size = len(y_test) // self.total_miners
+        # self.X_train, self.y_train = X_train[k*train_size:(k + 1)*train_size], y_train[k*train_size:(k + 1)*train_size]
+        # self.X_test, self.y_test = X_test[k*test_size:(k + 1)*test_size], y_test[k*test_size:(k + 1)*test_size]
+
+        start_index = sum(self.data_sizes[:k])
+        end_index = start_index + self.data_sizes[k]
+        self.X_train, self.y_train = X_train[int(start_index*len(y_train)):int(end_index*len(y_train))], y_train[int(start_index*len(y_train)):int(end_index*len(y_train))]
+        self.X_test, self.y_test = X_test[int(start_index*len(y_test)):int(end_index*len(y_test))], y_test[int(start_index*len(y_test)):int(end_index*len(y_test))]
 
         self.X_train = self.preprocess(self.X_train)
     
     def get_random_test(self):
         # returns random indexes of test data for evaluating other miners
+        if len(self.y_test) < self.test_size:
+            self.test_indexes = list(range(len(self.y_test)))
+            return self.X_test
         self.test_indexes = random.sample(range(len(self.y_test)), self.test_size)
-        return self.X_test[self.test_indexes]
+        return self.X_test[self.test_indexes, :]
     
     def preprocess(self, imgs):
         imgs = imgs.astype("float64") / 255.0
@@ -118,7 +134,7 @@ class Miner:
 
         current_name = f"{self.name}_round_{self.round}"
         self.current_model = f"./{current_name}.keras"
-        json.dump(history.history, open(f"{current_name}.json", 'x'))
+        json.dump(history.history, open(f"{current_name}.json", 'w'))
 
         self.model.save(self.current_model)
 
@@ -169,3 +185,4 @@ class Miner:
             "id" : f"vote_{self.name[-1]}",
             "votes" : votes
         })
+        print(f"My vote is {votes}.")

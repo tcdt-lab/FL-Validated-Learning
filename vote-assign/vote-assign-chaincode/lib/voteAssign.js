@@ -38,7 +38,7 @@ class VoteAssign extends Contract {
         ];
 
         for (const vote of votes) {
-            await ctx.stub.putState(vote.id, Buffer.from(stringify(sortKeysRecursive(vote))));
+            await ctx.stub.putState(vote.id, Buffer.from(stringify(vote)));
         }
     }
 
@@ -64,7 +64,7 @@ class VoteAssign extends Contract {
             votes : JSON.parse(votes)
         }
 
-        await ctx.stub.putState(vote.id, Buffer.from(stringify(sortKeysRecursive(vote))));
+        await ctx.stub.putState(vote.id, Buffer.from(stringify(vote)));
 
         return vote.toString();
     }
@@ -130,7 +130,7 @@ class VoteAssign extends Contract {
             }
         }
         const jsonArray = Object.entries(board);
-        jsonArray.sort((a, b) => a[0].localeCompare(b[0]));
+        jsonArray.sort((a, b) => a - b);
         board = Object.fromEntries(jsonArray.slice(0, count));
         const winners = Object.keys(board);
         return JSON.stringify(winners);
