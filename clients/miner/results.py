@@ -6,12 +6,13 @@ num_miners = 4
 num_rounds = 3
 fig, axes = plt.subplots(4, num_miners)
 
-loss_len = 0
-val_loss_len = 0
-acc_len = 0
-val_acc_len = 0
+
 
 for i in range(num_miners):
+    loss_len = 0
+    val_loss_len = 0
+    acc_len = 0
+    val_acc_len = 0
     for j in range(num_rounds):
         filename = f"./miner_{i+1}_round_{j+1}.json"
         history = json.load(open(filename, 'r'))
