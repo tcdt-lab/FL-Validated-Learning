@@ -36,9 +36,9 @@ const peerEndPoint = "localhost:7051";
 const peerHostAlias = "peer0.org1.example.com";
 
 // deadlines for each step
-const modelProposeDeadline = 120;
-const predProposeDeadline = 10;
-const voteAssignDeadline = 10;
+const modelProposeDeadline = 240;
+const predProposeDeadline = 30;
+const voteAssignDeadline = 30;
 
 // ports
 const minersPorts = [8000, 8001, 8002, 8003];
@@ -67,6 +67,7 @@ async function newGrpcConnection() {
     const tlsCredentials = grpc.credentials.createSsl(tlsRootCert);
     return new grpc.Client(peerEndPoint, tlsCredentials, {
         'grpc.ssl_target_name_override': peerHostAlias,
+        'grpc.max_send_message_length' : 8 * 1024 * 1024
     });
 }
 

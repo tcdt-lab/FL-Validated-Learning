@@ -39,10 +39,10 @@ def send_transactions():
         _ = requests.post("http://localhost:3001/api/demo/transaction/transfer/", json=data)
         print(f"Transaction demo_{counter} submitted.")
         counter += 1
-        time.sleep(5)
+        time.sleep(20)
 
 def run_flask():
-    app.run(host="localhost", port=5060, debug=True)
+    app.run(host="localhost", port=5060)
 
 if __name__ == '__main__':
     # Create the Flask thread

@@ -29,9 +29,9 @@ if __name__ == "__main__":
 
     # Step 1 : Bring up the network
     print("Bringing up the network...")
-    # os.chdir(os.path.join(cwd, "test-network"))
-    # os.system("./network.sh down")
-    # os.system("sh ./start.sh")
+    os.chdir(os.path.join(cwd, "test-network"))
+    os.system("./network.sh down")
+    os.system("sh ./start.sh")
 
     # Step 2 : Bring up express applications
     print("Bringing up the express applications...")

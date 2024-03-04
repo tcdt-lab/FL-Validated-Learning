@@ -15,6 +15,7 @@ from functools import cmp_to_key
 import os
 import matplotlib.pyplot as plt
 import signal
+from sklearn.utils import shuffle
 
 class TimerCallback(tf.keras.callbacks.Callback):
     def __init__(self, deadline):
@@ -26,6 +27,7 @@ class TimerCallback(tf.keras.callbacks.Callback):
         current_time = time.time()
         if current_time > self.deadline:
             self.model.stop_training = True 
+        print(f"Epoch {epoch} completed.")
 
 
 class Miner:
@@ -33,7 +35,7 @@ class Miner:
         self.name = name
         self.max_trx = 2
         self.total_miners = 5
-        self.test_size = 100
+        self.test_size = 25
         self.peer_port = peer_port
         self.round = 0
         self.data_sizes = [0.1, 0.15, 0.5, 0.25]
@@ -70,7 +72,9 @@ class Miner:
     
     def get_data(self):
         # Downloads the fashion mnist data and takes the part assigned to it as data.
-        (X_train, y_train), (X_test, y_test) = tf.keras.datasets.fashion_mnist.load_data()
+        (X_train, y_train), (X_test, y_test) = tf.keras.datasets.cifar10.load_data()
+        X_train, y_train = shuffle(X_train, y_train)
+        X_test, y_test = shuffle(X_test, y_test)
         k = int(self.name[-1]) - 1
         # train_size = len(y_train) // self.total_miners
         # test_size = len(y_test) // self.total_miners
@@ -93,9 +97,7 @@ class Miner:
         return self.X_test[self.test_indexes, :]
     
     def preprocess(self, imgs):
-        imgs = imgs.astype("float64") / 255.0
-        imgs = np.pad(imgs, ((0, 0), (2, 2), (2, 2)), constant_values=0.0)
-        return np.expand_dims(imgs, -1)
+        return imgs.astype("float64") / 255.0
 
     def get_predictions(self):
         res = requests.get(f"http://localhost:{self.peer_port}/api/preds/miner",
@@ -127,9 +129,12 @@ class Miner:
               optimizer="adam",
               metrics=["accuracy"])
 
+        print(f"Starting round {self.round}")
+        early_stopping = tf.keras.callbacks.EarlyStopping(patience=5)
         history = self.model.fit(self.X_train, self.y_train, epochs=20, batch_size=32, 
                                  validation_data=(self.preprocess(self.X_test), self.y_test), 
-                                 callbacks=[TimerCallback(self.deadline)])
+                                 callbacks=[TimerCallback(self.deadline), early_stopping],
+                                 verbose=0)
         print("Local model is trained.")
 
         current_name = f"{self.name}_round_{self.round}"

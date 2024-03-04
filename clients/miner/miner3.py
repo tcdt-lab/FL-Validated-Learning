@@ -11,7 +11,7 @@ def transactions():
     # Handles HTTP requests for starting the training step
     deadline = request.args.get('time')
     miner.round = request.args.get('round')
-    miner.deadline = time.time() + float(deadline) - 5
+    miner.deadline = time.time() + float(deadline) - 30
     executer.submit(miner.train)
     return "training started."
 
@@ -23,7 +23,6 @@ def tests():
 @app.route("/preds/ready/")
 def preds():
     executer.submit(miner.vote)
-    # miner.vote()
     return "I am voting."
 
 @app.route("/exit/")
