@@ -34,11 +34,13 @@ class Miner:
     def __init__(self, name, peer_port=3000):
         self.name = name
         self.max_trx = 2
-        self.total_miners = 5
-        self.test_size = 25
+        self.total_miners = 10
+        self.test_size = 50
         self.peer_port = peer_port
         self.round = 0
-        self.data_sizes = [0.1, 0.15, 0.5, 0.25]
+        self.data_sizes = [0.05, 0.1, 0.15, 0.25, 0.05, 0.05, 0.05, 0.15, 0.1, 0.05]
+        self.data_sizes = [(10 - i) / 55 for i in range(10)]
+        self.training = False
 
     def get_transactions(self):
         # Gets assigned transactions from the demo ledger
@@ -49,8 +51,10 @@ class Miner:
                             })
         try:
             self.transactions = json.loads(res.content)['data']
+            self.training = True
         except:
             print("Not ready for assignment.")
+            self.training = False
             exit(1)
 
     def get_test_records(self):
@@ -138,8 +142,8 @@ class Miner:
         print("Local model is trained.")
 
         current_name = f"{self.name}_round_{self.round}"
-        self.current_model = f"./{current_name}.keras"
-        json.dump(history.history, open(f"{current_name}.json", 'w'))
+        self.current_model = f"./results/{current_name}.keras"
+        json.dump(history.history, open(f"./results/{current_name}.json", 'w'))
 
         self.model.save(self.current_model)
 
@@ -159,35 +163,37 @@ class Miner:
         })
     
     def predict(self):
-        self.get_test_records()
-        
-        predictions = {}
-        for key in self.test_records.keys():
-            if key[-1] != self.name[-1]:
-                test_data = self.test_records[key]
-                test_data = np.array(test_data)
-                test_data = self.preprocess(test_data)
-                prediction = self.model.predict(test_data)
-                prediction = np.argmax(prediction, axis=1).tolist()
-                predictions[key] = prediction
-        requests.post(f"http://localhost:{self.peer_port}/api/pred/", json={
-            "id" : f"pred_{self.name[-1]}",
-            "predictions" : predictions
-        })
+        if self.training:
+            self.get_test_records()
+            
+            predictions = {}
+            for key in self.test_records.keys():
+                if key[-1] != self.name[-1]:
+                    test_data = self.test_records[key]
+                    test_data = np.array(test_data)
+                    test_data = self.preprocess(test_data)
+                    prediction = self.model.predict(test_data)
+                    prediction = np.argmax(prediction, axis=1).tolist()
+                    predictions[key] = prediction
+            requests.post(f"http://localhost:{self.peer_port}/api/pred/", json={
+                "id" : f"pred_{self.name[-1]}",
+                "predictions" : predictions
+            })
     
     def vote(self):
-        self.get_predictions()
-        labels = self.y_test[self.test_indexes]
-        metrics = {}
-        for key in self.predictions.keys():
-            pred = np.array(self.predictions[key]['prediction'])
-            acc = (pred == labels).sum() / len(labels)
-            dt = datetime.datetime.fromisoformat(self.predictions[key]['time'][:-1])
-            metrics[key] = (acc, dt)
-        metrics = {k: v for k, v in sorted(metrics.items(), key=cmp_to_key(self.custom_compare), reverse=True)}
-        votes = [f"model_{key[-1]}" for key in metrics.keys()]
-        requests.post(f"http://localhost:{self.peer_port}/api/vote/", json={
-            "id" : f"vote_{self.name[-1]}",
-            "votes" : votes
-        })
-        print(f"My vote is {votes}.")
+        if self.training:
+            self.get_predictions()
+            labels = self.y_test[self.test_indexes]
+            metrics = {}
+            for key in self.predictions.keys():
+                pred = np.array(self.predictions[key]['prediction'])
+                acc = (pred == labels).sum() / len(labels)
+                dt = datetime.datetime.fromisoformat(self.predictions[key]['time'][:-1])
+                metrics[key] = (acc, dt)
+            metrics = {k: v for k, v in sorted(metrics.items(), key=cmp_to_key(self.custom_compare), reverse=True)}
+            votes = [f"model_{key[-1]}" for key in metrics.keys()]
+            requests.post(f"http://localhost:{self.peer_port}/api/vote/", json={
+                "id" : f"vote_{self.name[-1]}",
+                "votes" : votes
+            })
+            print(f"My vote is {votes}.")

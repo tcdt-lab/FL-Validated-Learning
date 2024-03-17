@@ -1,7 +1,7 @@
 from Miner import *
 
 
-miner = Miner("miner_3")
+miner = Miner("miner_5")
 miner.get_data()
 executer = concurrent.futures.ThreadPoolExecutor(2)
 app = Flask(__name__)
@@ -30,4 +30,4 @@ def exit_miner():
     os.kill(os.getpid(), signal.SIGTERM)
 
 if __name__ == '__main__':
-    app.run(host="localhost", port=8002)
+    app.run(host="localhost", port=8004)

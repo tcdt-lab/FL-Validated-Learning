@@ -1,7 +1,7 @@
 from Miner import *
 
 
-miner = Miner("miner_4", peer_port=3001)
+miner = Miner("miner_4")
 miner.get_data()
 executer = concurrent.futures.ThreadPoolExecutor(2)
 app = Flask(__name__)
