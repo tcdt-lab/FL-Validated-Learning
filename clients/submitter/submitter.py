@@ -41,9 +41,6 @@ def send_transactions():
         counter += 1
         time.sleep(20)
 
-def run_flask():
-    app.run(host="localhost", port=5060)
-
 if __name__ == '__main__':
     # Create the Flask thread
     flask_thread = threading.Thread(target=flask_thread)

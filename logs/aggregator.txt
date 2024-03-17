@@ -1,0 +1,8 @@
+ * Serving Flask app 'aggregator'
+ * Debug mode: on
+[34mGlobal model is successfully updated.[37m
+[34mGlobal model is successfully updated.[37m
+[34mGlobal model is successfully updated.[37m
+[34mGlobal model is successfully updated.[37m
+[34mGlobal model is successfully updated.[37m
+[34mGlobal model is successfully updated.[37m

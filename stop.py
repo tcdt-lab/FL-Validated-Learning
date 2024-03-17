@@ -12,22 +12,11 @@ except:
     print("App2 is stopped.")
 
 # Miners
-try:
-    requests.get("http://localhost:8000/exit/")
-except:
-    print("Miner1 is stopped.")
-try:
-    requests.get("http://localhost:8001/exit/")
-except:
-    print("Miner2 is stopped.")
-try:
-    requests.get("http://localhost:8002/exit/")
-except:
-    print("Miner3 is stopped.")
-try:
-    requests.get("http://localhost:8003/exit/")
-except:
-    print("Miner4 is stopped.")
+for i in range(10):
+    try:
+        requests.get(f"http://localhost:{8000 + i}/exit/")
+    except:
+        print(f"Miner{i+1} is stopped.")
 
 # Aggregator
 try:

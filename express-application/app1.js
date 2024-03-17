@@ -36,17 +36,19 @@ const peerEndPoint = "localhost:7051";
 const peerHostAlias = "peer0.org1.example.com";
 
 // deadlines for each step
-const modelProposeDeadline = 240;
-const predProposeDeadline = 30;
-const voteAssignDeadline = 30;
+const modelProposeDeadline = 180;
+const predProposeDeadline = 8;
+const voteAssignDeadline = 8;
 
 // ports
-const minersPorts = [8000, 8001, 8002, 8003];
+const minersPorts = [8000, 8001, 8002, 8003, 8004, 8005, 8006, 8007, 8008, 8009];
 const aggregatorPort = 5050;
 
-const winnerCount = 2;
-const rounds = 3;
+const winnerCount = 5;
+const rounds = 20;
 let current_round = 0;
+
+let allWinners = [];
 
 // contract for each chaincode
 const contractDemo = InitConnection("demo", "demoCC");
@@ -67,7 +69,8 @@ async function newGrpcConnection() {
     const tlsCredentials = grpc.credentials.createSsl(tlsRootCert);
     return new grpc.Client(peerEndPoint, tlsCredentials, {
         'grpc.ssl_target_name_override': peerHostAlias,
-        'grpc.max_send_message_length' : 8 * 1024 * 1024
+        'grpc.max_send_message_length' : 100 * 1024 * 1024,
+        'grpc.max_receive_message_length' : 100 * 1024 * 1024
     });
 }
 
@@ -125,6 +128,7 @@ async function refreshStates(winners) {
 
 async function selectWinners() {
     const winners = await voteApp.selectWinners(contractVote, winnerCount.toString());
+    allWinners.push(winners)
     console.log(`Winners of the current round are : ${winners}`);
     const message = await mainApp.runWinnerTransactions(contractMain, JSON.stringify(winners));
     console.log(message);
@@ -189,6 +193,9 @@ async function startRound() {
         console.log("Miners are notified to gather transactions and train local models.");
     } else {
         console.log("All rounds Completed.");
+        console.log("All winners are: ");
+        console.log(allWinners);
+        allWinners = [];
         current_round = 0;
     }
 }

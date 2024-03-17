@@ -25,13 +25,13 @@ def send_trx(count):
 
 if __name__ == "__main__":
     cwd = os.path.dirname(__file__)
-    executor = concurrent.futures.ProcessPoolExecutor(8)
+    executor = concurrent.futures.ProcessPoolExecutor(14)
 
     # Step 1 : Bring up the network
     print("Bringing up the network...")
     os.chdir(os.path.join(cwd, "test-network"))
     os.system("./network.sh down")
-    os.system("sh ./start.sh")
+    os.system("sh ./start.sh")  
 
     # Step 2 : Bring up express applications
     print("Bringing up the express applications...")
@@ -44,14 +44,9 @@ if __name__ == "__main__":
     # Step 3 : Bring up miners
     print("Bringing up the miners...")
     os.chdir(os.path.join(cwd, "clients", "miner"))
-    executor.submit(os.system, "python3 ./miner1.py > ../../logs/miner1.txt")
-    time.sleep(3)
-    executor.submit(os.system, "python3 ./miner2.py > ../../logs/miner2.txt")
-    time.sleep(3)
-    executor.submit(os.system, "python3 ./miner3.py > ../../logs/miner3.txt")
-    time.sleep(3)
-    executor.submit(os.system, "python3 ./miner4.py > ../../logs/miner4.txt")
-    time.sleep(3)
+    for i in range(10):
+        executor.submit(os.system, f"python3 ./miner{i+1}.py > ../../logs/miner{i+1}.txt")
+        time.sleep(3)
 
     # Step 4 : Bring up Aggregator
     print("Bringing up the aggregator...")
@@ -65,7 +60,7 @@ if __name__ == "__main__":
 
     # Step 5 : Add some demo transactions
     print("Submitting demo transactions...")
-    send_trx(10)
+    send_trx(20)
 
     # Step 6 : Bring up submitter
     print("Bringing up the submitter...")

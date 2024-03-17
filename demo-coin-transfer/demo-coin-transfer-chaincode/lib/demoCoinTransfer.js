@@ -216,12 +216,13 @@ class DemoCoinTransfer extends  Contract {
 
         const id = await this.GetCurrentDemoId(ctx)
 
-        const senderWalletResponse = await ctx.stub.invokeChaincode("mainCC", ["ReadWallet", senderId], "main");
+        
         const walletExists = await this.MainWalletExists(ctx, receiverId);
         if (!walletExists) {
             throw Error(`No wallet exists with id ${receiverId}.`);
         }
-
+        
+        const senderWalletResponse = await ctx.stub.invokeChaincode("mainCC", ["ReadWallet", senderId], "main");
         const senderWallet = JSON.parse(senderWalletResponse.payload.toString());
         if (senderWallet.amount < parseFloat(amount)) {
             throw Error("The sender wallet does not have enough coins for this transaction.");

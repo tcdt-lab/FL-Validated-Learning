@@ -47,7 +47,8 @@ async function newGrpcConnection() {
     const tlsCredentials = grpc.credentials.createSsl(tlsRootCert);
     return new grpc.Client(peerEndPoint, tlsCredentials, {
         'grpc.ssl_target_name_override': peerHostAlias,
-        'grpc.max_send_message_length' : 8 * 1024 * 1024
+        'grpc.max_send_message_length' : 24 * 1024 * 1024,
+        'grpc.max_receive_message_length' : 24 * 1024 * 1024
     });
 }
 
