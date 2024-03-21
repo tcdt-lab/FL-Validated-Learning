@@ -8,7 +8,6 @@ app = Flask(__name__)
 
 @app.route("/transactions/ready/")
 def transactions():
-    # Handles HTTP requests for starting the training step
     deadline = request.args.get('time')
     miner.round = request.args.get('round')
     miner.deadline = time.time() + float(deadline) - 30
@@ -18,13 +17,12 @@ def transactions():
 @app.route("/tests/ready/")
 def tests():
     executer.submit(miner.predict)
-    return "I am getting the tests."
+    return "Prediction started."
 
 @app.route("/preds/ready/")
 def preds():
     executer.submit(miner.vote)
-    # miner.vote()
-    return "I am voting."
+    return "Voting started"
 
 @app.route("/exit/")
 def exit_miner():

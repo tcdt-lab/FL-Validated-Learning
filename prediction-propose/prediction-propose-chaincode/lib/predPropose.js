@@ -3,9 +3,14 @@
 const stringify = require("json-stringify-deterministic");
 const sortKeysRecursive = require("sort-keys-recursive");
 const { Contract } = require("fabric-contract-api");
+const { Mutex } = require("async-mutex");
 
 
 class PredPropose extends Contract {
+    constructor() {
+        super();
+        this.mutex = new Mutex();
+    }
     async InitPredictions(ctx) {
         /*
         * Initializes the ledger with some predefined predictions.
@@ -51,22 +56,27 @@ class PredPropose extends Contract {
         /*
         * Creates a prediction based on given arguments.
         * */
-        const accepting = await this.GetAcceptingStatus(ctx);
-        if (!accepting) {
-            throw Error("Sorry, we are not accepting predictions at the moment.");
-        }
+        const release = await this.mutex.acquire();
+        try {
+            const accepting = await this.GetAcceptingStatus(ctx);
+            if (!accepting) {
+                throw Error("Sorry, we are not accepting predictions at the moment.");
+            }
 
-        const predExists = await this.PredictionExists(ctx, id);
-        if (predExists) {
-            throw Error(`A prediction already exists with id ${id}.`);
-        }
-        const pred = {
-            id : id,
-            predictions : JSON.parse(predictions),
-            time : time
-        }
+            const predExists = await this.PredictionExists(ctx, id);
+            if (predExists) {
+                throw Error(`A prediction already exists with id ${id}.`);
+            }
+            var pred = {
+                id : id,
+                predictions : JSON.parse(predictions),
+                time : time
+            }
 
-        await ctx.stub.putState(pred.id, Buffer.from(stringify(pred)));
+            await ctx.stub.putState(pred.id, Buffer.from(stringify(pred)));
+        } finally {
+            release();
+        }
 
         return pred.toString();
     }

@@ -1,3 +1,8 @@
+"""
+The global model that is trained by different miners.
+"""
+
+
 import tensorflow as tf
 
 

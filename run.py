@@ -14,6 +14,9 @@ def get_random_ids():
 
 def send_trx(count):
     for i in range(count):
+        if (i + 1) % 100 == 0 and (i + 1) >= 100:
+            print(f"{i+1} transactions submitted")
+        
         sender_id, receiver_id = get_random_ids()
         data = {
             "senderId" : f'main_{sender_id}',

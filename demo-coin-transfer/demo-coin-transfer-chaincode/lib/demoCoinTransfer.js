@@ -3,10 +3,13 @@
 const stringify = require("json-stringify-deterministic");
 const sortKeysRecursive = require("sort-keys-recursive");
 const { Contract } = require("fabric-contract-api");
+const { Mutex } = require("async-mutex")
 
 class DemoCoinTransfer extends  Contract {
-
-
+    constructor() {
+        super();
+        this.mutex = new Mutex();
+    }
 
     async InitTransactions(ctx) {
         /*
@@ -54,8 +57,7 @@ class DemoCoinTransfer extends  Contract {
             },
             {
                 id : "rangeInfo",
-                firstAssigned : "",
-                lastAssigned : ""
+                assigned:  []
             }
         ];
 
@@ -213,33 +215,37 @@ class DemoCoinTransfer extends  Contract {
         /*
         * Validates and creates a "transfer coins" transaction with wallet ids of sender and receiver.
         */
-
-        const id = await this.GetCurrentDemoId(ctx)
+        const release = await this.mutex.acquire();
+        try {
+            const id = await this.GetCurrentDemoId(ctx)
 
         
-        const walletExists = await this.MainWalletExists(ctx, receiverId);
-        if (!walletExists) {
-            throw Error(`No wallet exists with id ${receiverId}.`);
+            const walletExists = await this.MainWalletExists(ctx, receiverId);
+            if (!walletExists) {
+                throw Error(`No wallet exists with id ${receiverId}.`);
+            }
+            
+            const senderWalletResponse = await ctx.stub.invokeChaincode("mainCC", ["ReadWallet", senderId], "main");
+            const senderWallet = JSON.parse(senderWalletResponse.payload.toString());
+            if (senderWallet.amount < parseFloat(amount)) {
+                throw Error("The sender wallet does not have enough coins for this transaction.");
+            }
+    
+            const trx = {
+                id : id,
+                method : "transfer",
+                senderId : senderId,
+                receiverId : receiverId,
+                amount : parseFloat(amount),
+                assigned : null
+            }
+    
+            await this.UpdateCurrentDemoId(ctx);
+    
+            await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
+        } finally {
+            release();
         }
-        
-        const senderWalletResponse = await ctx.stub.invokeChaincode("mainCC", ["ReadWallet", senderId], "main");
-        const senderWallet = JSON.parse(senderWalletResponse.payload.toString());
-        if (senderWallet.amount < parseFloat(amount)) {
-            throw Error("The sender wallet does not have enough coins for this transaction.");
-        }
-
-        const trx = {
-            id : id,
-            method : "transfer",
-            senderId : senderId,
-            receiverId : receiverId,
-            amount : parseFloat(amount),
-            assigned : null
-        }
-
-        await this.UpdateCurrentDemoId(ctx);
-
-        await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
     }
 
     async ToggleAcceptingStatus(ctx) {
@@ -268,60 +274,73 @@ class DemoCoinTransfer extends  Contract {
         * Assigns not-assigned transactions to miners.
         * The 'status' is used for letting the miners know about the status of their request.
         * */
+        const release = await this.mutex.acquire();
+        try {
+            const accepting = await this.GetAcceptingStatus(ctx);
 
-        const accepting = await this.GetAcceptingStatus(ctx);
-
-        if (!accepting) {
-            const res = {
-                status : "Failed",
-                message : "Sorry, we are not accepting assignment requests at the moment."
-            }
-            return JSON.stringify(res)
-        }
-
-        let rangeInfoString = await this.ReadTrx(ctx, "rangeInfo");
-        let rangeInfo = JSON.parse(rangeInfoString);
-        const assigned = [];
-        count = parseInt(count)
-        const iterator = await ctx.stub.getStateByRange('', '');
-        let result = await iterator.next();
-        while (!result.done && assigned.length < count) {
-            const strValue = Buffer.from(result.value.value.toString()).toString('utf8');
-            let record;
-            try {
-                record = JSON.parse(strValue);
-            } catch (err) {
-                console.log(err);
-                record = strValue;
-            }
-            if (record.assigned === null) {
-                if (rangeInfo.firstAssigned === "") {
-                    rangeInfo.firstAssigned = record.id
-                } else {
-                    rangeInfo.lastAssigned = record.id
+            if (!accepting) {
+                const res = {
+                    status : "Failed",
+                    message : "Sorry, we are not accepting assignment requests at the moment."
                 }
-                record.assigned = minerName;
-                assigned.push(record);
+                return JSON.stringify(res)
             }
-            result = await iterator.next();
-        }
-        if (assigned.length === 0) {
-            const res = {
-                status : "Failed",
-                message : "Sorry, no unassigned transaction exists at the moment."
+    
+            // let rangeInfoString = await this.ReadTrx(ctx, "rangeInfo");
+            // let rangeInfo = JSON.parse(rangeInfoString);
+            const assigned = [];
+            count = parseInt(count)
+            const iterator = await ctx.stub.getStateByRange('', '');
+            let result = await iterator.next();
+            while (!result.done && assigned.length < count) {
+                const strValue = Buffer.from(result.value.value.toString()).toString('utf8');
+                let record;
+                try {
+                    record = JSON.parse(strValue);
+                } catch (err) {
+                    console.log(err);
+                    record = strValue;
+                }
+                if (record.assigned === null) {
+                    // if (rangeInfo.firstAssigned === "") {
+                    //     rangeInfo.firstAssigned = record.id
+                    // } else {
+                    //     rangeInfo.lastAssigned = record.id
+                    // }
+                    record.assigned = minerName;
+                    assigned.push(record);
+                }
+                result = await iterator.next();
             }
-            return JSON.stringify(res)
+            if (assigned.length === 0) {
+                const res = {
+                    status : "Failed",
+                    message : "Sorry, no unassigned transaction exists at the moment."
+                }
+                return JSON.stringify(res)
+            }
+    
+            let assigned_ids = [];
+            for (const trx of assigned) {
+                assigned_ids.push(trx.id);
+                await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
+            }
+    
+            const rangeInfo = {
+                id : "rangeInfo",
+                assigned : assigned_ids
+            }
+    
+            await ctx.stub.putState(rangeInfo.id, Buffer.from(stringify(sortKeysRecursive(rangeInfo))));
+    
+            var res = {
+                status : "Accepted",
+                data : assigned
+            }
+        } finally {
+            release();
         }
-        for (const trx of assigned) {
-            await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
-        }
-
-        await ctx.stub.putState(rangeInfo.id, Buffer.from(stringify(sortKeysRecursive(rangeInfo))));
-
-        const res = {
-            status : "Accepted",
-            data : assigned
-        }
+        
         return JSON.stringify(res);
     }
 
@@ -360,42 +379,66 @@ class DemoCoinTransfer extends  Contract {
         await ctx.stub.deleteState(id);
     }
 
+    // async RefreshTransactions(ctx, winners) {
+    //     let rangeInfoString = await this.ReadTrx(ctx, "rangeInfo");
+    //     let rangeInfo = JSON.parse(rangeInfoString);
+    //
+    //     const deleteList = [];
+    //     winners = JSON.parse(winners);
+    //     // range query with empty string for startKey and endKey does an open-ended query of all assets in the chaincode namespace.
+    //     const iterator = await ctx.stub.getStateByRange(rangeInfo.firstAssigned, rangeInfo.lastAssigned);
+    //     let result = await iterator.next();
+    //     while (!result.done) {
+    //         const strValue = Buffer.from(result.value.value.toString()).toString('utf8');
+    //         let record;
+    //         try {
+    //             record = JSON.parse(strValue);
+    //         } catch (err) {
+    //             console.log(err);
+    //             record = strValue;
+    //         }
+    //         if ((record.id.startsWith("demo_")) && (record.assigned != null)) {
+    //             if (winners.includes(`miner_${record.assigned.charAt(record.assigned.length - 1)}`)) {
+    //                 deleteList.push(record);
+    //             } else {
+    //                 record.assigned = null;
+    //                 await ctx.stub.putState(record.id, Buffer.from(stringify(sortKeysRecursive(record))));
+    //             }
+    //         }
+    //         result = await iterator.next();
+    //     }
+    //     for (const record of deleteList) {
+    //         await ctx.stub.deleteState(record.id);
+    //     }
+    //
+    //     rangeInfo.firstAssigned = "";
+    //     rangeInfo.lastAssigned = "";
+    //     await ctx.stub.putState(rangeInfo.id, Buffer.from(stringify(sortKeysRecursive(rangeInfo))));
+    // }
     async RefreshTransactions(ctx, winners) {
         let rangeInfoString = await this.ReadTrx(ctx, "rangeInfo");
         let rangeInfo = JSON.parse(rangeInfoString);
+        let deleteList = [];
 
-        const deleteList = [];
-        winners = JSON.parse(winners);
-        // range query with empty string for startKey and endKey does an open-ended query of all assets in the chaincode namespace.
-        const iterator = await ctx.stub.getStateByRange(rangeInfo.firstAssigned, rangeInfo.lastAssigned);
-        let result = await iterator.next();
-        while (!result.done) {
-            const strValue = Buffer.from(result.value.value.toString()).toString('utf8');
-            let record;
-            try {
-                record = JSON.parse(strValue);
-            } catch (err) {
-                console.log(err);
-                record = strValue;
+        for (const trxId of rangeInfo.assigned) {
+            let trxString = await this.ReadTrx(ctx, trxId);
+            let trx = JSON.parse(trxString);
+            if (winners.includes(`miner_${trx.assigned.split("_")[1]}`)) {
+                deleteList.push(trx);
+            } else {
+                trx.assigned = null;
+                await ctx.stub.putState(trx.id, Buffer.from(stringify(sortKeysRecursive(trx))));
             }
-            if ((record.id.startsWith("demo_")) && (record.assigned != null)) {
-                if (winners.includes(`miner_${record.assigned.charAt(record.assigned.length - 1)}`)) {
-                    deleteList.push(record);
-                } else {
-                    record.assigned = null;
-                    await ctx.stub.putState(record.id, Buffer.from(stringify(sortKeysRecursive(record))));
-                }
-            }
-            result = await iterator.next();
         }
+
         for (const record of deleteList) {
             await ctx.stub.deleteState(record.id);
         }
 
-        rangeInfo.firstAssigned = "";
-        rangeInfo.lastAssigned = "";
+        rangeInfo.assigned = [];
         await ctx.stub.putState(rangeInfo.id, Buffer.from(stringify(sortKeysRecursive(rangeInfo))));
     }
+
 }
 
 module.exports = DemoCoinTransfer;

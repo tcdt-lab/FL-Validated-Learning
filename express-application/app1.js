@@ -37,11 +37,11 @@ const peerHostAlias = "peer0.org1.example.com";
 
 // deadlines for each step
 const modelProposeDeadline = 180;
-const predProposeDeadline = 8;
-const voteAssignDeadline = 8;
+const predProposeDeadline = 15;
+const voteAssignDeadline = 15;
 
 // ports
-const minersPorts = [8000, 8001, 8002, 8003, 8004, 8005, 8006, 8007, 8008, 8009];
+let minersPorts = [8000, 8001, 8002, 8003, 8004, 8005, 8006, 8007, 8008, 8009];
 const aggregatorPort = 5050;
 
 const winnerCount = 5;
@@ -117,6 +117,14 @@ async function InitConnection(channelName, chaincodeName) {
     return network.getContract(chaincodeName);
 }
 
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
 async function refreshStates(winners) {
     await demoApp.refreshTransactions(contractDemo, JSON.stringify(winners));
     console.log("Demo transactions are reset.")
@@ -149,6 +157,7 @@ async function selectWinners() {
 
 async function gatherPredictions() {
     await predApp.toggleAcceptingStatus(contractPred);
+    minersPorts = shuffleArray(minersPorts);
     for (const port of minersPorts) {
         await axios.get(`http://localhost:${port}/preds/ready/`, {
             params : {
@@ -164,6 +173,8 @@ async function gatherTestData() {
     await demoApp.toggleAcceptingStatus(contractDemo);
     await predApp.toggleAcceptingStatus(contractPred);
     await modelApp.gatherAllTestRecords(contractModel);
+    await modelApp.gatherAllTestRecords(contractModel);
+    minersPorts = shuffleArray(minersPorts);
     for (const port of minersPorts) {
         await axios.get(`http://localhost:${port}/tests/ready/`, {
             params : {
@@ -179,6 +190,7 @@ async function startRound() {
     current_round += 1;
     if (current_round <= rounds) {
         await demoApp.toggleAcceptingStatus(contractDemo);
+        minersPorts = shuffleArray(minersPorts);
         for (const port of minersPorts) {
             await axios.get(`http://localhost:${port}/transactions/ready/`, {
                 params: {

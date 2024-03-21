@@ -17,12 +17,17 @@ import matplotlib.pyplot as plt
 import signal
 from sklearn.utils import shuffle
 
+
 class TimerCallback(tf.keras.callbacks.Callback):
+    """
+    Stops miner training right before the training deadline.
+    """
+
     def __init__(self, deadline):
         super().__init__()
         self.deadline = deadline
-    # TODO: test this.
-    # Checks whether the miner has time to train or not. if not it stops the training and sends the model to the ledger.
+
+
     def on_epoch_end(self, epoch, logs=None):
         current_time = time.time()
         if current_time > self.deadline:
@@ -32,18 +37,33 @@ class TimerCallback(tf.keras.callbacks.Callback):
 
 class Miner:
     def __init__(self, name, peer_port=3000):
+        """
+        Defines the functionalities of miners.
+        
+        max_trx : the maximum number of transaction each miner can mine per round.
+        peer_port : the port on which the peer's express application is running.
+        data_sizes : the percentage of data available for each miner. This is saved
+                    in a list in which each index corresponds to the data size of 
+                    the respective miner.
+        """
         self.name = name
+
         self.max_trx = 2
         self.total_miners = 10
         self.test_size = 50
+
         self.peer_port = peer_port
         self.round = 0
-        self.data_sizes = [0.05, 0.1, 0.15, 0.25, 0.05, 0.05, 0.05, 0.15, 0.1, 0.05]
-        self.data_sizes = [(10 - i) / 55 for i in range(10)]
-        self.training = False
+
+        # self.data_sizes = [(10 - i) / 55 for i in range(10)] # Option 1
+        self.data_sizes = [((i // 5) * 3 + 1) / 25 for i in range(10)] # Option 2
+    
 
     def get_transactions(self):
-        # Gets assigned transactions from the demo ledger
+        """
+        Asks the admin peer for transactions to mine.
+        """
+
         res = requests.post(f"http://localhost:3000/api/demo/transactions/assign/",
                             json={
                                 "minerName": self.name,
@@ -51,13 +71,16 @@ class Miner:
                             })
         try:
             self.transactions = json.loads(res.content)['data']
-            self.training = True
         except:
             print("Not ready for assignment.")
-            self.training = False
             exit(1)
 
+
     def get_test_records(self):
+        """
+        Sends a request to an express application to receive test records for prediction.
+        """
+
         res = requests.get(f"http://localhost:{self.peer_port}/api/model/",
                             json={
                                 "id" : "testRecords"
@@ -66,24 +89,27 @@ class Miner:
         
     
     def get_global_model(self):
-        # Gets the global model
+        """
+        Loads the current global model.
+        """
+
         self.model = tf.keras.models.load_model("../global model/global_model.keras")
+
 
     def softmax(self, array):
         array = np.array(array)
         array = np.exp(array) / np.sum(np.exp(array))
-
     
+
     def get_data(self):
-        # Downloads the fashion mnist data and takes the part assigned to it as data.
+        """
+        Downloads the CIFAR10 data and takes the part assigned to it as data
+        """
+
         (X_train, y_train), (X_test, y_test) = tf.keras.datasets.cifar10.load_data()
-        X_train, y_train = shuffle(X_train, y_train)
-        X_test, y_test = shuffle(X_test, y_test)
-        k = int(self.name[-1]) - 1
-        # train_size = len(y_train) // self.total_miners
-        # test_size = len(y_test) // self.total_miners
-        # self.X_train, self.y_train = X_train[k*train_size:(k + 1)*train_size], y_train[k*train_size:(k + 1)*train_size]
-        # self.X_test, self.y_test = X_test[k*test_size:(k + 1)*test_size], y_test[k*test_size:(k + 1)*test_size]
+        X_train, y_train = shuffle(X_train, y_train, random_state=97)
+        X_test, y_test = shuffle(X_test, y_test, random_state=97)
+        k = int(self.name[6:]) - 1
 
         start_index = sum(self.data_sizes[:k])
         end_index = start_index + self.data_sizes[k]
@@ -92,25 +118,46 @@ class Miner:
 
         self.X_train = self.preprocess(self.X_train)
     
+
     def get_random_test(self):
-        # returns random indexes of test data for evaluating other miners
+        """
+        Returns random indexes of test data for evaluating other miners.
+        """
+
         if len(self.y_test) < self.test_size:
             self.test_indexes = list(range(len(self.y_test)))
             return self.X_test
         self.test_indexes = random.sample(range(len(self.y_test)), self.test_size)
+
         return self.X_test[self.test_indexes, :]
     
+
     def preprocess(self, imgs):
+        """
+        Preprocesses the given images for our CNN.
+        """
+
         return imgs.astype("float64") / 255.0
 
+
     def get_predictions(self):
+        """
+        Receives the predictions of other models for voting
+        """
+
         res = requests.get(f"http://localhost:{self.peer_port}/api/preds/miner",
                             json={
-                                "id" : f"model_{self.name[-1]}"
+                                "id" : f"model_{self.name[6:]}"
                             })
         self.predictions = json.loads(res.content)
     
+
     def custom_compare(self, a, b): 
+        """
+        A custom sorting function that first sorts predictions based on accuracy and in
+        equal cases favors the faster miners.
+        """
+
         a, b = a[1], b[1]
         if (a[0] > b[0]) or ((a[0] == b[0]) and (a[1] < b[1])): 
             return 1
@@ -118,13 +165,16 @@ class Miner:
             return 0
         return -1
 
+
     def train(self):
-        # Complete flow of the training step
-        # Getting Transactions
-        # Getting the global model
-        # Training the global model
-        # Creating a model propose block
-        # Sending the block to the demo ledger
+        """
+        Training step implementation:
+        1. Getting transactions to mine.
+        2. Getting the current global model.
+        3. Training the global model with local data right before overfit or deadline.
+        4. Creating a model propose block.
+        5. Sending the block to the demo ledger.
+        """
 
         self.get_transactions()
         self.get_global_model()
@@ -133,14 +183,15 @@ class Miner:
               optimizer="adam",
               metrics=["accuracy"])
 
-        print(f"Starting round {self.round}")
+        print(f"Starting round {self.round}\n")
         early_stopping = tf.keras.callbacks.EarlyStopping(patience=5)
         history = self.model.fit(self.X_train, self.y_train, epochs=20, batch_size=32, 
                                  validation_data=(self.preprocess(self.X_test), self.y_test), 
                                  callbacks=[TimerCallback(self.deadline), early_stopping],
                                  verbose=0)
-        print("Local model is trained.")
+        print("\nLocal model is trained.")
 
+        # Saving the trained local model and training history.
         current_name = f"{self.name}_round_{self.round}"
         self.current_model = f"./results/{current_name}.keras"
         json.dump(history.history, open(f"./results/{current_name}.json", 'w'))
@@ -155,45 +206,56 @@ class Miner:
         transaction_ids = [transaction["id"] for transaction in self.transactions]
         hash_value = hashlib.md5(open(self.current_model,'rb').read()).hexdigest()
         requests.post(f"http://localhost:{self.peer_port}/api/model/", json={
-            "id" : f"model_{self.name[-1]}",
+            "id" : f"model_{self.name[6:]}",
             "hash" : hash_value,
             "path" : self.current_model_path,
             "transactions" : transaction_ids,
             "testData" : test_data
         })
     
+
     def predict(self):
-        if self.training:
-            self.get_test_records()
-            
-            predictions = {}
-            for key in self.test_records.keys():
-                if key[-1] != self.name[-1]:
-                    test_data = self.test_records[key]
-                    test_data = np.array(test_data)
-                    test_data = self.preprocess(test_data)
-                    prediction = self.model.predict(test_data)
-                    prediction = np.argmax(prediction, axis=1).tolist()
-                    predictions[key] = prediction
-            requests.post(f"http://localhost:{self.peer_port}/api/pred/", json={
-                "id" : f"pred_{self.name[-1]}",
-                "predictions" : predictions
-            })
+        """
+        Predicts the test data of other models.
+        """
+
+        self.get_test_records()
+        
+        predictions = {}
+        for key in self.test_records.keys():
+            if key[6:] != self.name[6:]:
+                test_data = self.test_records[key]
+                test_data = np.array(test_data)
+                test_data = self.preprocess(test_data)
+                prediction = self.model.predict(test_data)
+                prediction = np.argmax(prediction, axis=1).tolist()
+                predictions[key] = prediction
+        
+        requests.post(f"http://localhost:{self.peer_port}/api/pred/", json={
+            "id" : f"pred_{self.name[6:]}",
+            "predictions" : predictions
+        })
     
     def vote(self):
-        if self.training:
-            self.get_predictions()
-            labels = self.y_test[self.test_indexes]
-            metrics = {}
-            for key in self.predictions.keys():
-                pred = np.array(self.predictions[key]['prediction'])
-                acc = (pred == labels).sum() / len(labels)
-                dt = datetime.datetime.fromisoformat(self.predictions[key]['time'][:-1])
-                metrics[key] = (acc, dt)
-            metrics = {k: v for k, v in sorted(metrics.items(), key=cmp_to_key(self.custom_compare), reverse=True)}
-            votes = [f"model_{key[-1]}" for key in metrics.keys()]
-            requests.post(f"http://localhost:{self.peer_port}/api/vote/", json={
-                "id" : f"vote_{self.name[-1]}",
-                "votes" : votes
-            })
-            print(f"My vote is {votes}.")
+        """
+        Votes the predictions of other miners
+        """
+
+        self.get_predictions()
+
+        labels = self.y_test[self.test_indexes]
+        metrics = {}
+        for key in self.predictions.keys():
+            pred = np.array(self.predictions[key]['prediction'])
+            acc = (pred == labels).sum() / len(labels)
+            dt = datetime.datetime.fromisoformat(self.predictions[key]['time'][:-1])
+            key_num = key.split("_")[1]
+            metrics[f"model_{key_num}"] = (acc, dt)
+        metrics = {k: v for k, v in sorted(metrics.items(), key=cmp_to_key(self.custom_compare), reverse=True)}
+
+        requests.post(f"http://localhost:{self.peer_port}/api/vote/", json={
+            "id" : f"vote_{self.name[6:]}",
+            "votes" : list(metrics.keys())
+        })
+        print(f"\nBoard : {metrics}\n")
+        print(f"My vote is {list(metrics.keys())}.\n")

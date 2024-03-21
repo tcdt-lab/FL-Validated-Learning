@@ -96,7 +96,7 @@ class MainCoinTransfer extends Contract {
         const winners = JSON.parse(winnersString);
         for (const winner of winners) {
             const transactionsBinary = await ctx.stub.invokeChaincode("demoCC",
-                ["GetTransactionsByAssignment", `miner_${winner.charAt(winner.length - 1)}`], "demo");
+                ["GetTransactionsByAssignment", `miner_${winner.split("_")[1]}`], "demo");
             const transactionsString = transactionsBinary.payload.toString();
             const transactions = JSON.parse(transactionsString);
             for (const trx of transactions) {

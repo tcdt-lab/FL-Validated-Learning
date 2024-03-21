@@ -125,12 +125,12 @@ class VoteAssign extends Contract {
                 if (board[voter.votes[i]] == null) {
                     board[voter.votes[i]] = voter.votes.length - i;
                 } else {
-                    board[voter.votes[i]] += voter.votes.length;
+                    board[voter.votes[i]] += voter.votes.length - i;
                 }
             }
         }
         const jsonArray = Object.entries(board);
-        jsonArray.sort((a, b) => a - b);
+        jsonArray.sort((a, b) => b[1] - a[1]);
         board = Object.fromEntries(jsonArray.slice(0, count));
         const winners = Object.keys(board);
         return JSON.stringify(winners);

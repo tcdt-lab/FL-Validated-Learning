@@ -2,14 +2,15 @@
 
 const { TextDecoder } = require("util");
 const utf8Decoder = new TextDecoder();
-const { Semaphore } = require('async-mutex');
-const semaphore = new Semaphore(1);
+const { Mutex } = require('async-mutex');
 
 class DemoApp {
     /*
     * Demo application functions that interact with demo chaincode.
     * */
-    constructor() {}
+    constructor() {
+        this.mutex = new Mutex();
+    }
     async initTransactions(contract) {
         try {
             await (await contract).submitTransaction('InitTransactions');
@@ -84,12 +85,20 @@ class DemoApp {
 
     async assignTransactions(contract, minerName, count) {
         try {
-            return await semaphore.runExclusive(async () => {
-                return await (await contract).submitTransaction("AssignTransactions", minerName, count);
-            }).then((transactionsBinary) => {
-                const transactionsString = utf8Decoder.decode(transactionsBinary);
-                return JSON.parse(transactionsString);
-            });
+            const release = await this.mutex.acquire();
+            try {
+                const transactionsBinary = await (await contract).submitTransaction("AssignTransactions", minerName, count);
+                var transactionsString = utf8Decoder.decode(transactionsBinary);
+            } finally {
+                release();
+            }
+            return JSON.parse(transactionsString);
+            // `return await semaphore.runExclusive(async () => {
+            //     return await (await contract).submitTransaction("AssignTransactions", minerName, count);
+            // }).then((transactionsBinary) => {
+            //     const transactionsString = utf8Decoder.decode(transactionsBinary);
+            //     return JSON.parse(transactionsString);
+            // });`
             // const transactionsBinary = await (await contract).submitTransaction("AssignTransactions", minerName, count);
             // const transactionsString = utf8Decoder.decode(transactionsBinary);
             // return JSON.parse(transactionsString);

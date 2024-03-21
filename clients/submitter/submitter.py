@@ -8,7 +8,7 @@ import os
 import signal
 
 """
-Submits a transfer transaction every second using random variables.
+Submits a transfer transaction using random variables with custom frequency.
 """
 
 app = Flask(__name__)
@@ -39,7 +39,7 @@ def send_transactions():
         _ = requests.post("http://localhost:3001/api/demo/transaction/transfer/", json=data)
         print(f"Transaction demo_{counter} submitted.")
         counter += 1
-        time.sleep(20)
+        time.sleep(5)
 
 if __name__ == '__main__':
     # Create the Flask thread
