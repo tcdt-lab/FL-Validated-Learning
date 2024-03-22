@@ -4,7 +4,7 @@ Server is listening on localhost:3000.
 Miners are notified to gather transactions and train local models.
 Miners are notified to predict test data records.
 Miners are notified to vote the predictions.
-Winners of the current round are : model_10,model_6,model_7,model_8,model_9
+Winners of the current round are : model_8,model_9,model_7,model_10,model_3
 Winner transactions were successfully ran.
 Aggregator is notified to update the global model.
 Demo transactions are reset.
@@ -15,7 +15,7 @@ All models, predictions, and votes are deleted.
 Miners are notified to gather transactions and train local models.
 Miners are notified to predict test data records.
 Miners are notified to vote the predictions.
-Winners of the current round are : model_5,model_3,model_8,model_7,model_10
+Winners of the current round are : model_9,model_7,model_8,model_10,model_3
 Winner transactions were successfully ran.
 Aggregator is notified to update the global model.
 Demo transactions are reset.
@@ -26,7 +26,7 @@ All models, predictions, and votes are deleted.
 Miners are notified to gather transactions and train local models.
 Miners are notified to predict test data records.
 Miners are notified to vote the predictions.
-Winners of the current round are : model_3,model_7,model_6,model_8,model_5
+Winners of the current round are : model_4,model_9,model_7,model_10,model_5
 Winner transactions were successfully ran.
 Aggregator is notified to update the global model.
 Demo transactions are reset.
@@ -37,7 +37,7 @@ All models, predictions, and votes are deleted.
 Miners are notified to gather transactions and train local models.
 Miners are notified to predict test data records.
 Miners are notified to vote the predictions.
-Winners of the current round are : model_8,model_3,model_1,model_9,model_10
+Winners of the current round are : model_5,model_3,model_2,model_10,model_7
 Winner transactions were successfully ran.
 Aggregator is notified to update the global model.
 Demo transactions are reset.
@@ -48,7 +48,7 @@ All models, predictions, and votes are deleted.
 Miners are notified to gather transactions and train local models.
 Miners are notified to predict test data records.
 Miners are notified to vote the predictions.
-Winners of the current round are : model_5,model_6,model_3,model_10,model_1
+Winners of the current round are : model_3,model_2,model_8,model_10,model_5
 Winner transactions were successfully ran.
 Aggregator is notified to update the global model.
 Demo transactions are reset.
@@ -59,7 +59,7 @@ All models, predictions, and votes are deleted.
 Miners are notified to gather transactions and train local models.
 Miners are notified to predict test data records.
 Miners are notified to vote the predictions.
-Winners of the current round are : model_6,model_3,model_2,model_7,model_5
+Winners of the current round are : model_2,model_5,model_8,model_7,model_3
 Winner transactions were successfully ran.
 Aggregator is notified to update the global model.
 Demo transactions are reset.
@@ -70,7 +70,7 @@ All models, predictions, and votes are deleted.
 Miners are notified to gather transactions and train local models.
 Miners are notified to predict test data records.
 Miners are notified to vote the predictions.
-Winners of the current round are : model_6,model_4,model_1,model_5,model_10
+Winners of the current round are : model_4,model_10,model_3,model_7,model_5
 Winner transactions were successfully ran.
 Aggregator is notified to update the global model.
 Demo transactions are reset.
@@ -81,7 +81,7 @@ All models, predictions, and votes are deleted.
 Miners are notified to gather transactions and train local models.
 Miners are notified to predict test data records.
 Miners are notified to vote the predictions.
-Winners of the current round are : model_10,model_6,model_8,model_3,model_4
+Winners of the current round are : model_4,model_7,model_3,model_5,model_2
 Winner transactions were successfully ran.
 Aggregator is notified to update the global model.
 Demo transactions are reset.
@@ -92,7 +92,7 @@ All models, predictions, and votes are deleted.
 Miners are notified to gather transactions and train local models.
 Miners are notified to predict test data records.
 Miners are notified to vote the predictions.
-Winners of the current round are : model_3,model_2,model_7,model_4,model_10
+Winners of the current round are : model_4,model_2,model_7,model_3,model_5
 Winner transactions were successfully ran.
 Aggregator is notified to update the global model.
 Demo transactions are reset.
@@ -103,7 +103,7 @@ All models, predictions, and votes are deleted.
 Miners are notified to gather transactions and train local models.
 Miners are notified to predict test data records.
 Miners are notified to vote the predictions.
-Winners of the current round are : model_7,model_1,model_2,model_8,model_3
+Winners of the current round are : model_2,model_7,model_3,model_10,model_8
 Winner transactions were successfully ran.
 Aggregator is notified to update the global model.
 Demo transactions are reset.
@@ -114,7 +114,7 @@ All models, predictions, and votes are deleted.
 Miners are notified to gather transactions and train local models.
 Miners are notified to predict test data records.
 Miners are notified to vote the predictions.
-Winners of the current round are : model_2,model_4,model_1,model_3,model_9
+Winners of the current round are : model_8,model_10,model_9,model_2,model_5
 Winner transactions were successfully ran.
 Aggregator is notified to update the global model.
 Demo transactions are reset.
@@ -125,7 +125,7 @@ All models, predictions, and votes are deleted.
 Miners are notified to gather transactions and train local models.
 Miners are notified to predict test data records.
 Miners are notified to vote the predictions.
-Winners of the current round are : model_5,model_7,model_2,model_1,model_4
+Winners of the current round are : model_5,model_7,model_3,model_2,model_8
 Winner transactions were successfully ran.
 Aggregator is notified to update the global model.
 Demo transactions are reset.
@@ -136,7 +136,7 @@ All models, predictions, and votes are deleted.
 Miners are notified to gather transactions and train local models.
 Miners are notified to predict test data records.
 Miners are notified to vote the predictions.
-Winners of the current round are : model_6,model_8,model_3,model_10,model_4
+Winners of the current round are : model_4,model_2,model_5,model_9,model_3
 Winner transactions were successfully ran.
 Aggregator is notified to update the global model.
 Demo transactions are reset.
@@ -147,7 +147,7 @@ All models, predictions, and votes are deleted.
 Miners are notified to gather transactions and train local models.
 Miners are notified to predict test data records.
 Miners are notified to vote the predictions.
-Winners of the current round are : model_8,model_10,model_3,model_4,model_6
+Winners of the current round are : model_4,model_9,model_5,model_7,model_3
 Winner transactions were successfully ran.
 Aggregator is notified to update the global model.
 Demo transactions are reset.
@@ -158,7 +158,7 @@ All models, predictions, and votes are deleted.
 Miners are notified to gather transactions and train local models.
 Miners are notified to predict test data records.
 Miners are notified to vote the predictions.
-Winners of the current round are : model_5,model_2,model_1,model_10,model_9
+Winners of the current round are : model_4,model_2,model_5,model_3,model_9
 Winner transactions were successfully ran.
 Aggregator is notified to update the global model.
 Demo transactions are reset.
@@ -169,7 +169,7 @@ All models, predictions, and votes are deleted.
 Miners are notified to gather transactions and train local models.
 Miners are notified to predict test data records.
 Miners are notified to vote the predictions.
-Winners of the current round are : model_4,model_9,model_3,model_6,model_5
+Winners of the current round are : model_7,model_10,model_8,model_4,model_2
 Winner transactions were successfully ran.
 Aggregator is notified to update the global model.
 Demo transactions are reset.
@@ -180,7 +180,7 @@ All models, predictions, and votes are deleted.
 Miners are notified to gather transactions and train local models.
 Miners are notified to predict test data records.
 Miners are notified to vote the predictions.
-Winners of the current round are : model_1,model_7,model_6,model_3,model_5
+Winners of the current round are : model_3,model_10,model_5,model_4,model_2
 Winner transactions were successfully ran.
 Aggregator is notified to update the global model.
 Demo transactions are reset.
@@ -191,7 +191,7 @@ All models, predictions, and votes are deleted.
 Miners are notified to gather transactions and train local models.
 Miners are notified to predict test data records.
 Miners are notified to vote the predictions.
-Winners of the current round are : model_4,model_7,model_9,model_1,model_6
+Winners of the current round are : model_3,model_4,model_9,model_5,model_2
 Winner transactions were successfully ran.
 Aggregator is notified to update the global model.
 Demo transactions are reset.
@@ -202,7 +202,7 @@ All models, predictions, and votes are deleted.
 Miners are notified to gather transactions and train local models.
 Miners are notified to predict test data records.
 Miners are notified to vote the predictions.
-Winners of the current round are : model_6,model_4,model_2,model_1,model_3
+Winners of the current round are : model_9,model_3,model_7,model_8,model_2
 Winner transactions were successfully ran.
 Aggregator is notified to update the global model.
 Demo transactions are reset.
@@ -213,7 +213,7 @@ All models, predictions, and votes are deleted.
 Miners are notified to gather transactions and train local models.
 Miners are notified to predict test data records.
 Miners are notified to vote the predictions.
-Winners of the current round are : model_2,model_5,model_7,model_9,model_8
+Winners of the current round are : model_4,model_2,model_3,model_7,model_9
 Winner transactions were successfully ran.
 Aggregator is notified to update the global model.
 Demo transactions are reset.
@@ -223,24 +223,24 @@ All models, predictions, and votes are deleted.
 All rounds Completed.
 All winners are: 
 [
-  [ 'model_10', 'model_6', 'model_7', 'model_8', 'model_9' ],
-  [ 'model_5', 'model_3', 'model_8', 'model_7', 'model_10' ],
-  [ 'model_3', 'model_7', 'model_6', 'model_8', 'model_5' ],
-  [ 'model_8', 'model_3', 'model_1', 'model_9', 'model_10' ],
-  [ 'model_5', 'model_6', 'model_3', 'model_10', 'model_1' ],
-  [ 'model_6', 'model_3', 'model_2', 'model_7', 'model_5' ],
-  [ 'model_6', 'model_4', 'model_1', 'model_5', 'model_10' ],
-  [ 'model_10', 'model_6', 'model_8', 'model_3', 'model_4' ],
-  [ 'model_3', 'model_2', 'model_7', 'model_4', 'model_10' ],
-  [ 'model_7', 'model_1', 'model_2', 'model_8', 'model_3' ],
-  [ 'model_2', 'model_4', 'model_1', 'model_3', 'model_9' ],
-  [ 'model_5', 'model_7', 'model_2', 'model_1', 'model_4' ],
-  [ 'model_6', 'model_8', 'model_3', 'model_10', 'model_4' ],
-  [ 'model_8', 'model_10', 'model_3', 'model_4', 'model_6' ],
-  [ 'model_5', 'model_2', 'model_1', 'model_10', 'model_9' ],
-  [ 'model_4', 'model_9', 'model_3', 'model_6', 'model_5' ],
-  [ 'model_1', 'model_7', 'model_6', 'model_3', 'model_5' ],
-  [ 'model_4', 'model_7', 'model_9', 'model_1', 'model_6' ],
-  [ 'model_6', 'model_4', 'model_2', 'model_1', 'model_3' ],
-  [ 'model_2', 'model_5', 'model_7', 'model_9', 'model_8' ]
+  [ 'model_8', 'model_9', 'model_7', 'model_10', 'model_3' ],
+  [ 'model_9', 'model_7', 'model_8', 'model_10', 'model_3' ],
+  [ 'model_4', 'model_9', 'model_7', 'model_10', 'model_5' ],
+  [ 'model_5', 'model_3', 'model_2', 'model_10', 'model_7' ],
+  [ 'model_3', 'model_2', 'model_8', 'model_10', 'model_5' ],
+  [ 'model_2', 'model_5', 'model_8', 'model_7', 'model_3' ],
+  [ 'model_4', 'model_10', 'model_3', 'model_7', 'model_5' ],
+  [ 'model_4', 'model_7', 'model_3', 'model_5', 'model_2' ],
+  [ 'model_4', 'model_2', 'model_7', 'model_3', 'model_5' ],
+  [ 'model_2', 'model_7', 'model_3', 'model_10', 'model_8' ],
+  [ 'model_8', 'model_10', 'model_9', 'model_2', 'model_5' ],
+  [ 'model_5', 'model_7', 'model_3', 'model_2', 'model_8' ],
+  [ 'model_4', 'model_2', 'model_5', 'model_9', 'model_3' ],
+  [ 'model_4', 'model_9', 'model_5', 'model_7', 'model_3' ],
+  [ 'model_4', 'model_2', 'model_5', 'model_3', 'model_9' ],
+  [ 'model_7', 'model_10', 'model_8', 'model_4', 'model_2' ],
+  [ 'model_3', 'model_10', 'model_5', 'model_4', 'model_2' ],
+  [ 'model_3', 'model_4', 'model_9', 'model_5', 'model_2' ],
+  [ 'model_9', 'model_3', 'model_7', 'model_8', 'model_2' ],
+  [ 'model_4', 'model_2', 'model_3', 'model_7', 'model_9' ]
 ]

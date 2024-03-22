@@ -47,7 +47,7 @@ if __name__ == "__main__":
     # Step 3 : Bring up miners
     print("Bringing up the miners...")
     os.chdir(os.path.join(cwd, "clients", "miner"))
-    for i in range(10):
+    for i in range(0, 10):
         executor.submit(os.system, f"python3 ./miner{i+1}.py > ../../logs/miner{i+1}.txt")
         time.sleep(3)
 
@@ -63,13 +63,13 @@ if __name__ == "__main__":
 
     # Step 5 : Add some demo transactions
     print("Submitting demo transactions...")
-    send_trx(20)
+    send_trx(400)
 
     # Step 6 : Bring up submitter
     print("Bringing up the submitter...")
-    os.chdir(os.path.join(cwd, "clients", "submitter"))
-    executor.submit(os.system, "python3 ./submitter.py > ../../logs/submitter.txt")
-    time.sleep(3)
+    # os.chdir(os.path.join(cwd, "clients", "submitter"))
+    # executor.submit(os.system, "python3 ./submitter.py > ../../logs/submitter.txt")
+    # time.sleep(3)
 
     # Step 7 : Re-initializing the model
     print("Re-initializing the global model...")

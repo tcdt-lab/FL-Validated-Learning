@@ -16,29 +16,13 @@ import os
 import matplotlib.pyplot as plt
 import signal
 from sklearn.utils import shuffle
+from sklearn.neighbors import KNeighborsClassifier
 
 
-class TimerCallback(tf.keras.callbacks.Callback):
-    """
-    Stops miner training right before the training deadline.
-    """
-
-    def __init__(self, deadline):
-        super().__init__()
-        self.deadline = deadline
-
-
-    def on_epoch_end(self, epoch, logs=None):
-        current_time = time.time()
-        if current_time > self.deadline:
-            self.model.stop_training = True 
-        print(f"Epoch {epoch} completed.")
-
-
-class Miner:
+class Adversary:
     def __init__(self, name, peer_port=3000):
         """
-        Defines the functionalities of miners.
+        Defines the functionalities of adversaries.
         
         max_trx : the maximum number of transaction each miner can mine per round.
         peer_port : the port on which the peer's express application is running.
@@ -115,8 +99,6 @@ class Miner:
         end_index = start_index + self.data_sizes[k]
         self.X_train, self.y_train = X_train[int(start_index*len(y_train)):int(end_index*len(y_train))], y_train[int(start_index*len(y_train)):int(end_index*len(y_train))]
         self.X_test, self.y_test = X_test[int(start_index*len(y_test)):int(end_index*len(y_test))], y_test[int(start_index*len(y_test)):int(end_index*len(y_test))]
-
-        self.X_train = self.preprocess(self.X_train)
     
 
     def get_random_test(self):
@@ -130,14 +112,6 @@ class Miner:
         self.test_indexes = random.sample(range(len(self.y_test)), self.test_size)
 
         return self.X_test[self.test_indexes, :]
-    
-
-    def preprocess(self, imgs):
-        """
-        Preprocesses the given images for our CNN.
-        """
-
-        return imgs.astype("float64") / 255.0
 
 
     def get_predictions(self):
@@ -159,7 +133,7 @@ class Miner:
         """
 
         a, b = a[1], b[1]
-        if (a[0] > b[0]) or ((a[0] == b[0]) and (a[1] < b[1])): 
+        if (a[0] < b[0]) or ((a[0] == b[0]) and (a[1] > b[1])): 
             return 1
         if (a == b):
             return 0
@@ -179,22 +153,18 @@ class Miner:
         self.get_transactions()
         self.get_global_model()
 
-        self.model.compile(loss="sparse_categorical_crossentropy",
-              optimizer="adam",
-              metrics=["accuracy"])
+        # trash the model
+        layers = self.model.get_weights()
+        new_layers = [np.zeros_like(layer) for layer in layers]
+        self.model.set_weights(new_layers)
 
-        print(f"Starting round {self.round}\n")
-        early_stopping = tf.keras.callbacks.EarlyStopping(patience=5)
-        history = self.model.fit(self.X_train, self.y_train, epochs=20, batch_size=32, 
-                                 validation_data=(self.preprocess(self.X_test), self.y_test), 
-                                 callbacks=[TimerCallback(self.deadline), early_stopping],
-                                 verbose=0)
-        print("\nLocal model is trained.")
+        # train a knn
+        self.knn = KNeighborsClassifier(n_neighbors=1)
+        self.knn.fit(self.X_train.reshape(self.X_train.shape[0], -1), self.y_train.ravel())
 
         # Saving the trained local model and training history.
         current_name = f"{self.name}_round_{self.round}"
         self.current_model = f"./results/{current_name}.keras"
-        json.dump(history.history, open(f"./results/{current_name}.json", 'w'))
 
         self.model.save(self.current_model)
 
@@ -226,11 +196,13 @@ class Miner:
             if key[6:] != self.name[6:]:
                 test_data = self.test_records[key]
                 test_data = np.array(test_data)
-                test_data = self.preprocess(test_data)
-                prediction = self.model.predict(test_data)
-                prediction = np.argmax(prediction, axis=1).tolist()
-                predictions[key] = prediction
-        
+
+                # Get the closest match
+                prediction = self.knn.predict(test_data.reshape(test_data.shape[0], -1))
+
+                predictions[key] = prediction.tolist()
+
+        print(predictions)
         requests.post(f"http://localhost:{self.peer_port}/api/pred/", json={
             "id" : f"pred_{self.name[6:]}",
             "predictions" : predictions
@@ -240,6 +212,7 @@ class Miner:
         """
         Votes the predictions of other miners
         """
+        # vote from worst to best
 
         self.get_predictions()
 
@@ -248,7 +221,7 @@ class Miner:
         for key in self.predictions.keys():
             pred = np.array(self.predictions[key]['prediction'])
             pred = np.expand_dims(pred, axis=-1)
-            acc = ((pred == labels).sum()) / len(labels)
+            acc = (pred == labels).sum() / len(labels)
             dt = datetime.datetime.fromisoformat(self.predictions[key]['time'][:-1])
             key_num = key.split("_")[1]
             metrics[f"model_{key_num}"] = (acc, dt)

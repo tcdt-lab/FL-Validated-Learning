@@ -7,26 +7,26 @@ file to get the plot.
 import matplotlib.pyplot as plt
 
 all_winners = [
-  [ 'model_10', 'model_6', 'model_7', 'model_8', 'model_9' ],
-  [ 'model_5', 'model_3', 'model_8', 'model_7', 'model_10' ],
-  [ 'model_3', 'model_7', 'model_6', 'model_8', 'model_5' ],
-  [ 'model_8', 'model_3', 'model_1', 'model_9', 'model_10' ],
-  [ 'model_5', 'model_6', 'model_3', 'model_10', 'model_1' ],
-  [ 'model_6', 'model_3', 'model_2', 'model_7', 'model_5' ],
-  [ 'model_6', 'model_4', 'model_1', 'model_5', 'model_10' ],
-  [ 'model_10', 'model_6', 'model_8', 'model_3', 'model_4' ],
-  [ 'model_3', 'model_2', 'model_7', 'model_4', 'model_10' ],
-  [ 'model_7', 'model_1', 'model_2', 'model_8', 'model_3' ],
-  [ 'model_2', 'model_4', 'model_1', 'model_3', 'model_9' ],
-  [ 'model_5', 'model_7', 'model_2', 'model_1', 'model_4' ],
-  [ 'model_6', 'model_8', 'model_3', 'model_10', 'model_4' ],
-  [ 'model_8', 'model_10', 'model_3', 'model_4', 'model_6' ],
-  [ 'model_5', 'model_2', 'model_1', 'model_10', 'model_9' ],
-  [ 'model_4', 'model_9', 'model_3', 'model_6', 'model_5' ],
-  [ 'model_1', 'model_7', 'model_6', 'model_3', 'model_5' ],
-  [ 'model_4', 'model_7', 'model_9', 'model_1', 'model_6' ],
-  [ 'model_6', 'model_4', 'model_2', 'model_1', 'model_3' ],
-  [ 'model_2', 'model_5', 'model_7', 'model_9', 'model_8' ]
+  [ 'model_8', 'model_9', 'model_7', 'model_10', 'model_3' ],
+  [ 'model_9', 'model_7', 'model_8', 'model_10', 'model_3' ],
+  [ 'model_4', 'model_9', 'model_7', 'model_10', 'model_5' ],
+  [ 'model_5', 'model_3', 'model_2', 'model_10', 'model_7' ],
+  [ 'model_3', 'model_2', 'model_8', 'model_10', 'model_5' ],
+  [ 'model_2', 'model_5', 'model_8', 'model_7', 'model_3' ],
+  [ 'model_4', 'model_10', 'model_3', 'model_7', 'model_5' ],
+  [ 'model_4', 'model_7', 'model_3', 'model_5', 'model_2' ],
+  [ 'model_4', 'model_2', 'model_7', 'model_3', 'model_5' ],
+  [ 'model_2', 'model_7', 'model_3', 'model_10', 'model_8' ],
+  [ 'model_8', 'model_10', 'model_9', 'model_2', 'model_5' ],
+  [ 'model_5', 'model_7', 'model_3', 'model_2', 'model_8' ],
+  [ 'model_4', 'model_2', 'model_5', 'model_9', 'model_3' ],
+  [ 'model_4', 'model_9', 'model_5', 'model_7', 'model_3' ],
+  [ 'model_4', 'model_2', 'model_5', 'model_3', 'model_9' ],
+  [ 'model_7', 'model_10', 'model_8', 'model_4', 'model_2' ],
+  [ 'model_3', 'model_10', 'model_5', 'model_4', 'model_2' ],
+  [ 'model_3', 'model_4', 'model_9', 'model_5', 'model_2' ],
+  [ 'model_9', 'model_3', 'model_7', 'model_8', 'model_2' ],
+  [ 'model_4', 'model_2', 'model_3', 'model_7', 'model_9' ]
 ]
 
 models = {}

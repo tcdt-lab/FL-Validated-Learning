@@ -1,7 +1,7 @@
-from Miner import *
+from Adversary import *
 
 
-miner = Miner("miner_6", peer_port=3001)
+miner = Adversary("miner_6", peer_port=3001)
 miner.get_data()
 executer = concurrent.futures.ThreadPoolExecutor(2)
 app = Flask(__name__)
