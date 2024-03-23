@@ -1,7 +1,7 @@
-from Adversary import *
+from Miner import *
 
 
-miner = Adversary("miner_1")
+miner = Miner("miner_1")
 miner.get_data()
 executer = concurrent.futures.ThreadPoolExecutor(2)
 app = Flask(__name__)
@@ -11,20 +11,17 @@ def transactions():
     deadline = request.args.get('time')
     miner.round = request.args.get('round')
     miner.deadline = time.time() + float(deadline) - 30
-    # executer.submit(miner.train)
-    miner.train()
+    executer.submit(miner.train)
     return "training started."
 
 @app.route("/tests/ready/")
 def tests():
-    # executer.submit(miner.predict)
-    miner.predict()
+    executer.submit(miner.predict)
     return "Prediction started."
 
 @app.route("/preds/ready/")
 def preds():
-    # executer.submit(miner.vote)
-    miner.vote()
+    executer.submit(miner.vote)
     return "Voting started"
 
 @app.route("/exit/")

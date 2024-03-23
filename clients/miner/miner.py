@@ -51,12 +51,13 @@ class Miner:
         self.max_trx = 2
         self.total_miners = 10
         self.test_size = 50
+        self.random_state = 97
 
         self.peer_port = peer_port
         self.round = 0
 
-        # self.data_sizes = [(10 - i) / 55 for i in range(10)] # Option 1
-        self.data_sizes = [((i // 5) * 3 + 1) / 25 for i in range(10)] # Option 2
+        self.data_sizes = [(10 - i) / 55 for i in range(10)] # Option 1
+        # self.data_sizes = [((i // 5) * 3 + 1) / 25 for i in range(10)] # Option 2
     
 
     def get_transactions(self):
@@ -107,8 +108,8 @@ class Miner:
         """
 
         (X_train, y_train), (X_test, y_test) = tf.keras.datasets.cifar10.load_data()
-        X_train, y_train = shuffle(X_train, y_train, random_state=97)
-        X_test, y_test = shuffle(X_test, y_test, random_state=97)
+        X_train, y_train = shuffle(X_train, y_train, random_state=self.random_state)
+        X_test, y_test = shuffle(X_test, y_test, random_state=self.random_state)
         k = int(self.name[6:]) - 1
 
         start_index = sum(self.data_sizes[:k])
