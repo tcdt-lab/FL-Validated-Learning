@@ -1,2 +1,122 @@
  * Serving Flask app 'aggregator'
  * Debug mode: on
+miner_10 : 25.4896
+miner_8 : 25.7886
+miner_6 : 23.9494
+miner_7 : 25.2538
+miner_9 : 24.1875
+Global model is successfully updated.
+miner_8 : 10.8739
+miner_10 : 10.66
+miner_6 : 10.5992
+miner_9 : 10.9632
+miner_7 : 10.8352
+Global model is successfully updated.
+miner_7 : 7.229
+miner_3 : 7.608
+miner_6 : 7.0642
+miner_8 : 6.8719
+miner_9 : 7.0227
+Global model is successfully updated.
+miner_2 : 5.36
+miner_3 : 5.0197
+miner_5 : 5.0266
+miner_1 : 5.198
+miner_7 : 6.5987
+Global model is successfully updated.
+miner_1 : 3.8929
+miner_4 : 3.8562
+miner_5 : 3.8946
+miner_3 : 3.809
+miner_8 : 6.629
+Global model is successfully updated.
+miner_5 : 3.4033
+miner_4 : 3.4282
+miner_8 : 8.8332
+miner_3 : 3.2802
+miner_10 : 6.8696
+Global model is successfully updated.
+miner_2 : 4.1924
+miner_3 : 3.72
+miner_1 : 3.9001
+miner_5 : 3.5303
+miner_4 : 4.296
+Global model is successfully updated.
+miner_9 : 8.0992
+miner_8 : 8.9016
+miner_5 : 3.6595
+miner_6 : 8.3188
+miner_4 : 3.6532
+Global model is successfully updated.
+miner_5 : 4.4067
+miner_2 : 4.2765
+miner_4 : 4.3175
+miner_1 : 4.4086
+miner_8 : 6.8619
+Global model is successfully updated.
+miner_10 : 6.89
+miner_3 : 3.8328
+miner_4 : 4.3328
+miner_7 : 9.4283
+miner_1 : 4.3164
+Global model is successfully updated.
+miner_2 : 4.4856
+miner_4 : 4.4295
+miner_5 : 4.6227
+miner_3 : 3.979
+miner_8 : 8.8423
+Global model is successfully updated.
+miner_1 : 4.47
+miner_3 : 4.0616
+miner_7 : 7.6035
+miner_8 : 8.2562
+miner_5 : 4.2911
+Global model is successfully updated.
+miner_2 : 4.2659
+miner_3 : 4.4477
+miner_10 : 6.9336
+miner_1 : 4.4273
+miner_4 : 4.3332
+Global model is successfully updated.
+miner_4 : 4.6156
+miner_2 : 4.3019
+miner_5 : 4.4183
+miner_1 : 4.6515
+miner_3 : 4.2811
+Global model is successfully updated.
+miner_1 : 4.5953
+miner_8 : 11.8642
+miner_6 : 8.1937
+miner_5 : 4.6527
+miner_9 : 8.3832
+Global model is successfully updated.
+miner_3 : 5.044
+miner_7 : 7.1006
+miner_2 : 5.3651
+miner_6 : 7.7369
+miner_9 : 9.121
+Global model is successfully updated.
+miner_5 : 5.3041
+miner_3 : 5.4981
+miner_6 : 6.7995
+miner_9 : 7.4683
+miner_8 : 8.7712
+Global model is successfully updated.
+miner_4 : 5.7724
+miner_5 : 5.1948
+miner_10 : 8.7016
+miner_1 : 5.2884
+miner_8 : 9.0388
+Global model is successfully updated.
+miner_5 : 5.3396
+miner_4 : 5.1925
+miner_10 : 7.3099
+miner_3 : 5.5765
+miner_2 : 5.1155
+Global model is successfully updated.
+miner_2 : 5.2127
+miner_3 : 5.4019
+miner_4 : 5.2403
+miner_8 : 9.8778
+miner_7 : 8.0516
+Global model is successfully updated.

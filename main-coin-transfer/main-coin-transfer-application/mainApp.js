@@ -16,7 +16,7 @@ class MainApp {
         */
         try {
             await (await contract).submitTransaction("InitWallets");
-            return "Main ledger was successfully initialized.\n"
+            return "Main ledger was successfully initialized.\n";
         } catch (error) {
             console.log(error);
             return error;
@@ -54,7 +54,17 @@ class MainApp {
     async runWinnerTransactions(contract, winners) {
         try {
             await (await contract).submitTransaction("RunWinnerTransactions", winners);
-            return "Winner transactions were successfully ran."
+            return "Winner transactions were successfully ran.";
+        } catch (error) {
+            console.log(error);
+            return error;
+        }
+    }
+
+    async rewardMiner(contract, id, reward) {
+        try {
+            await (await contract).submitTransaction("RewardMiner", id, reward);
+            return `Miner ${id} was successfully rewarded.`;
         } catch (error) {
             console.log(error);
             return error;

@@ -182,6 +182,7 @@ class ModelPropose extends Contract {
             const modelString = await this.ReadModel(ctx, winner);
             const model = JSON.parse(modelString);
             results.push({
+                "id" : model.id,
                 "hash" : model.hash,
                 "path" : model.path
             });

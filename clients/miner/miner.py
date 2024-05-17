@@ -56,8 +56,8 @@ class Miner:
         self.peer_port = peer_port
         self.round = 0
 
-        self.data_sizes = [(10 - i) / 55 for i in range(10)] # Option 1
-        # self.data_sizes = [((i // 5) * 3 + 1) / 25 for i in range(10)] # Option 2
+        # self.data_sizes = [(10 - i) / 55 for i in range(10)] # Option 1
+        self.data_sizes = [((i // 5) * 3 + 1) / 25 for i in range(10)] # Option 2
     
 
     def get_transactions(self):

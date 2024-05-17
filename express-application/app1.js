@@ -134,6 +134,12 @@ async function refreshStates(winners) {
     console.log("All models, predictions, and votes are deleted.");
 }
 
+async function distributeRewards(rewards) {
+    for (const data of rewards) {
+        await mainApp.rewardMiner(contractMain, data['id'], data['reward']);
+    }
+}
+
 async function selectWinners() {
     const winners = await voteApp.selectWinners(contractVote, winnerCount.toString());
     allWinners.push(winners)
@@ -141,7 +147,7 @@ async function selectWinners() {
     const message = await mainApp.runWinnerTransactions(contractMain, JSON.stringify(winners));
     console.log(message);
     const models = await modelApp.getWinnerModels(contractModel, JSON.stringify(winners));
-    await axios({
+    const res = await axios({
         method: 'post',
         url: `http://localhost:${aggregatorPort}/aggregate/`,
         headers: {},
@@ -149,7 +155,8 @@ async function selectWinners() {
             models: models,
         }
     });
-    console.log("Aggregator is notified to update the global model.");
+    await distributeRewards(res.data);
+    console.log("The global model is updates and rewards are distributed.");
     await refreshStates(winners);
     console.log(`*** ROUND ${current_round} COMPLETED *** \n`);
     await startRound();

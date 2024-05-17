@@ -30,6 +30,8 @@ def display_training_results(metric, ylabel):
 
     for i in range(num_miners):
         axes[i // 5, i - (i // 5) * 5].set_title(f"Miner {i+1}")
+    
+    axes[1, 2].set_xlabel("Epochs")
 
     plt.show()
 

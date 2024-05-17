@@ -17,6 +17,27 @@ class MainCoinTransfer extends Contract {
             }
             await ctx.stub.putState(wallet.id, Buffer.from(stringify(sortKeysRecursive(wallet))));
         }
+
+        for (let i = 1; i < 11; i++) {
+            const wallet = {
+                id: `miner_${i}`,
+                amount: 0.0
+            }
+            await ctx.stub.putState(wallet.id, Buffer.from(stringify(sortKeysRecursive(wallet))));
+        }
+    }
+
+    async RewardMiner(ctx, id, reward) {
+        const exists = await this.WalletExists(ctx, id);
+        if (! exists) {
+            throw Error(`No miner exists with id ${id}`);
+        }
+
+        const walletString = await this.ReadWallet(ctx, id);
+        let wallet = JSON.parse(walletString);
+        wallet.amount = wallet.amount + parseFloat(reward);
+
+        await ctx.stub.putState(wallet.id, Buffer.from(stringify(sortKeysRecursive(wallet))));
     }
 
     async WalletExists(ctx, id) {
@@ -64,6 +85,34 @@ class MainCoinTransfer extends Contract {
         }
         return JSON.stringify(allResults);
     }
+
+    
+    async GetAllMinerWallets(ctx) {
+        /*
+        * Returns all the existing wallets.
+        * */
+
+        const allResults = [];
+        // range query with empty string for startKey and endKey does an open-ended query of all assets in the chaincode namespace.
+        const iterator = await ctx.stub.getStateByRange('', '');
+        let result = await iterator.next();
+        while (!result.done) {
+            const strValue = Buffer.from(result.value.value.toString()).toString('utf8');
+            let record;
+            try {
+                record = JSON.parse(strValue);
+            } catch (err) {
+                console.log(err);
+                record = strValue;
+            }
+            if (record.id.startsWith("miner_")) {
+                allResults.push(record);
+            }
+            result = await iterator.next();
+        }
+        return JSON.stringify(allResults);
+    }
+
 
     async RunTrx(ctx, trx) {
         switch (trx.method) {

@@ -3,6 +3,7 @@ import concurrent.futures
 import requests
 import random
 import time
+from tqdm import tqdm
 
 
 def get_random_ids():
@@ -13,10 +14,7 @@ def get_random_ids():
     return id_1, id_2
 
 def send_trx(count):
-    for i in range(count):
-        if (i + 1) % 100 == 0 and (i + 1) >= 100:
-            print(f"{i+1} transactions submitted")
-        
+    for _ in tqdm(range(count)):
         sender_id, receiver_id = get_random_ids()
         data = {
             "senderId" : f'main_{sender_id}',
@@ -34,7 +32,7 @@ if __name__ == "__main__":
     print("Bringing up the network...")
     os.chdir(os.path.join(cwd, "test-network"))
     os.system("./network.sh down")
-    os.system("sh ./start.sh")  
+    os.system("sh ./start.sh")
 
     # Step 2 : Bring up express applications
     print("Bringing up the express applications...")
@@ -63,13 +61,13 @@ if __name__ == "__main__":
 
     # Step 5 : Add some demo transactions
     print("Submitting demo transactions...")
-    send_trx(400)
+    send_trx(20)
 
     # Step 6 : Bring up submitter
     print("Bringing up the submitter...")
-    # os.chdir(os.path.join(cwd, "clients", "submitter"))
-    # executor.submit(os.system, "python3 ./submitter.py > ../../logs/submitter.txt")
-    # time.sleep(3)
+    os.chdir(os.path.join(cwd, "clients", "submitter"))
+    executor.submit(os.system, "python3 ./submitter.py > ../../logs/submitter.txt")
+    time.sleep(3)
 
     # Step 7 : Re-initializing the model
     print("Re-initializing the global model...")
