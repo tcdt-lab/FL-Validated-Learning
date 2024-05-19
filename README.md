@@ -40,8 +40,19 @@ The `clients` folder holds the all client classes, including the miners, the agg
 ### Chaincodes
 In this network, we first validate all the proposed transactions and save the approved transactions in a channel named `demo`. The `demo-coin-transfer` folder contains the chaincode and applicattion to interact with these transactions. This chaincode is responsible for validating, storing, and assigning demo transactions to miners.
 
-`model-propose`
-`prediction-propose`
-`vote-assign`
-`main-coin-transfer`
+Miners train the global model after receiving their assigned transactions, a task implemented in the `model-propose` folder which contains the chaincode as well as the application for interacting with the `model-propose` blocks.
+
+Each miner forms the `model-propose` block which contains the hash of the trained model and some test records from its local dataset. The recpective chaincode gathers all test records and send them to each miner, which in turn, feed the test data to their model and make predictions. These predictions are again sent to a chaincode implemented in the `prediction-propose` folder. This folder also contains an application that aids the interaction between the `prediciton-propose` blocks and off-chain applications.
+
+Predictions of each test record are sent to the owner of that record for evaluation. Since the owners know the true label of the test records they communicated before, they can rank the predictions made by other miners based on accuracy and time. This functionality is implemented in the `vote-assign` folder.
+
+At last, the `main-coin-transfer` contains the necessary chaincode and application to interact with the main wallets and users of the network.
+
+### Express Applications
+Each peer in the network is connected to an *Express.js* server included in the `express-applications` folder. One of such applications is selected as the *Admin* of the system who controls the information such as the number of rounds, winners, deadlines, and ports of other entities in the blockchain. The Admin is also responsible for notifying the miners and the aggregator of different stages of the mining process.
+
+### KNN Attacks
+To perform the KNN attack experiment, uncomment the two lines in `miner1.py` and `miner6.py`, and comment the immediate line above it. Then, simply run the system using `run.py`.
+
+
 
