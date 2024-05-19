@@ -1,0 +1,3 @@
+# Express Applications
+
+This project is initially implemented to contain only two peers in the blockchain network. However, it can easily be modified for additional peers. To achieve this, simply copy the code of the `app2.js` and name it appropriately. Then, alter the code in `run.py` to run this express application as well. You should also create a log file for it and change the `peer_port` of some miners accordingly.
