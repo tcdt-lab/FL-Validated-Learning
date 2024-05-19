@@ -24,8 +24,8 @@ By using the `run.py` file, we can run the network:
 ```
 python3 run.py
 ```
-This file should be modifed to 
 
+If needed, this file can be modifed to simulate different mining scenarios such as mining with distinct number of miners. 
 
 We have modified the implementation to create multiple processes using one command. Hence, log files, located at `logs` directory, are created to help the user of this repository to observe the state of the framework at any time. 
 
