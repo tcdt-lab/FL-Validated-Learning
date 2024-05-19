@@ -27,7 +27,7 @@ python3 run.py
 This file should be modifed to 
 
 
-We have modified the implementation to create multiple processes using one command. Hence, log files, located at `logs` directory, are created to observe the state of the framework at any time. 
+We have modified the implementation to create multiple processes using one command. Hence, log files, located at `logs` directory, are created to help the user of this repository to observe the state of the framework at any time. 
 
 The `stop.py` file can be used to stop all the processes created at the previous step.
 ```
