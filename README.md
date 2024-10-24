@@ -1,6 +1,6 @@
 # Proof of Collaborative Learning: A Multi-winner Federated Learning Consensus Mechanism
 
-[Paper] 
+[Paper](https://ieeexplore.ieee.org/abstract/document/10664335) 
 
 
 The implementation of PoCL, a new consensus mechanism that replaces deep learning model training with the nonce value computation.
